@@ -1,0 +1,223 @@
+---
+import { useState, useEffect } from 'react'; // O el framework que uses (Astro tiene integración React, Solid, Svelte, etc)
+---
+
+<div id="container" class="w-[90%] text-white rounded-2xl p-2 flex flex-col gap-4" data-accordion>
+  <p id="loading-text">Cargando datos...</p>
+</div>
+
+<script type="module">
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No has iniciado sesión.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/me', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('No autorizado');
+
+      const { user } = await res.json();
+
+      // Aquí construimos el HTML dinámico usando los datos recibidos,
+      // insertamos el HTML dentro del contenedor, reemplazando el "Cargando datos..."
+      const container = document.getElementById('container');
+      const loadingText = document.getElementById('loading-text');
+      if (loadingText) loadingText.remove();
+
+      // Funciones auxiliares para generar la lista de direcciones y métodos de pago
+      const crearDireccionesHTML = () => {
+        if (!user.direcciones || user.direcciones.length === 0) {
+          return `<p>No tienes direcciones guardadas.</p>`;
+        }
+        return user.direcciones.map(dir => `
+          <div class="mb-4 border-b border-white/30 pb-2">
+            <p>${dir.calle}, ${dir.ciudad}, ${dir.estado}, ${dir.codigo_postal}, ${dir.pais}</p>
+            <p class="text-sm text-white/70">${dir.referencia ?? ''}</p>
+            <div class="w-full flex flex-col sm:flex-row justify-between gap-2 mt-2">
+              <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center hover:bg-black hover:font-semibold">Editar dirección</a>
+              <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar dirección</a>
+            </div>
+          </div>
+        `).join('');
+      };
+
+      const crearMetodosPagoHTML = () => {
+        if (!user.metodos_pago || user.metodos_pago.length === 0) {
+          return `<p>No tienes métodos de pago guardados.</p>`;
+        }
+        return user.metodos_pago.map(tarjeta => `
+          <div class="sm:w-1/2 w-[90%] flex flex-col h-[100px] sm:h-[150px] border p-3 rounded-2xl bg-gray-200 relative text-black">
+            <div class="flex justify-between items-start">
+              <h3 class="text-md sm:text-xl">${tarjeta.numero}</h3>
+              <img src="${tarjeta.logo}" alt="Logo de ${tarjeta.tipo}" class="w-[40px] sm:w-[60px]" />
+            </div>
+            <div class="absolute bottom-[35px] left-[10px] text-sm font-semibold">
+              <span>CVV: ${tarjeta.cvv}</span>
+            </div>
+            <div class="absolute bottom-[10px] right-[10px] text-sm font-semibold">
+              <span>Exp: ${tarjeta.expiration}</span>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <a href="#" class="border p-2 rounded-2xl text-center hover:bg-black hover:font-semibold">Editar</a>
+              <a href="#" class="border p-2 rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar</a>
+            </div>
+          </div>
+        `).join('');
+      };
+
+      container.innerHTML = `
+        <!-- Dirección de envío -->
+        <details class="w-full group bg-[#1e1e1e] transition-all duration-500 ease-in-out rounded-xl p-4">
+          <summary class="flex justify-between items-center cursor-pointer list-none text-xl">
+            <h3 class="font-semibold text-2xl flex items-center gap-2">
+              <ion-icon name="location-outline"></ion-icon> Dirección de envío
+            </h3>
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+          </summary>
+          <div class="pl-4 pt-2">
+            ${crearDireccionesHTML()}
+
+            <!-- Añadir dirección -->
+            <div class="mt-4 border-t border-white/20 pt-4">
+              <h4 class="font-semibold mb-2">Agregar nueva dirección</h4>
+              <form id="form-direccion" class="flex flex-col gap-2">
+                <input required name="calle" placeholder="Calle" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="ciudad" placeholder="Ciudad" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="estado" placeholder="Estado" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="codigo_postal" placeholder="Código Postal" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="pais" placeholder="País" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input name="referencia" placeholder="Referencia (opcional)" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <button type="submit" class="bg-amber-400 text-black font-semibold rounded p-2 hover:bg-amber-300 transition">
+                  Guardar dirección
+                </button>
+              </form>
+            </div>
+          </div>
+        </details>
+
+        <!-- Métodos de pago -->
+        <details class="w-full group bg-[#1e1e1e] transition-all duration-500 ease-in-out rounded-xl p-4">
+          <summary class="flex justify-between items-center cursor-pointer list-none text-xl">
+            <h3 class="font-semibold text-2xl flex items-center gap-2">
+              <ion-icon name="cash-outline"></ion-icon> Métodos de pago
+            </h3>
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+          </summary>
+          <div class="pl-4 pt-2 overflow-hidden transition-all duration-500 ease-in-out">
+            ${crearMetodosPagoHTML()}
+
+            <!-- Añadir tarjeta -->
+            <div class="mt-4 border-t border-white/20 pt-4">
+              <h4 class="font-semibold mb-2">Agregar nueva tarjeta</h4>
+              <form id="form-tarjeta" class="flex flex-col gap-2">
+                <input required name="numero" placeholder="Número de tarjeta" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="cvv" placeholder="CVV" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="expiration" placeholder="Fecha de expiración (MM/AA)" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input required name="tipo" placeholder="Tipo de tarjeta (Visa, Mastercard...)" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <input name="logo" placeholder="URL del logo" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
+                <button type="submit" class="bg-amber-400 text-black font-semibold rounded p-2 hover:bg-amber-300 transition">
+                  Guardar tarjeta
+                </button>
+              </form>
+            </div>
+          </div>
+        </details>
+
+        <!-- Opciones de cuenta -->
+        <details class="w-full group bg-[#1e1e1e] transition-all duration-500 ease-in-out rounded-xl p-4">
+          <summary class="flex justify-between items-center cursor-pointer list-none text-xl">
+            <h3 class="font-semibold text-2xl flex items-center gap-2">
+              <ion-icon name="person-outline"></ion-icon> Opciones de cuenta
+            </h3>
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+          </summary>
+          <div class="pl-4 pt-2 overflow-hidden transition-all duration-500 ease-in-out flex flex-col sm:flex-row w-full p-2 gap-2">
+            <a href="#" class="border p-2 w-full sm:w-[150px] rounded-2xl text-center text-white bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Editar Datos</a>
+            <a href="#" class="border p-2 w-full sm:w-[150px] rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar cuenta</a>
+          </div>
+        </details>
+      `;
+
+      // Reusar tu código para manejar envíos de formularios después de haber insertado el HTML
+      const formDireccion = document.getElementById('form-direccion');
+      formDireccion?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+
+        const data = {
+          calle: form.calle.value,
+          ciudad: form.ciudad.value,
+          estado: form.estado.value,
+          codigo_postal: form.codigo_postal.value,
+          pais: form.pais.value,
+          referencia: form.referencia.value,
+        };
+
+        try {
+          const res = await fetch('/api/direcciones/add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+          if (res.ok) {
+            alert('Dirección guardada con éxito');
+            location.reload();
+          } else {
+            alert('Error: ' + result.error);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error al guardar dirección');
+        }
+      });
+
+      const formTarjeta = document.getElementById('form-tarjeta');
+      formTarjeta?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+
+        const data = {
+          numero: form.numero.value,
+          cvv: form.cvv.value,
+          expiration: form.expiration.value,
+          tipo: form.tipo.value,
+          logo: form.logo.value,
+        };
+
+        try {
+          const res = await fetch('/api/metodopago/add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+          if (res.ok) {
+            alert('Tarjeta guardada con éxito');
+            location.reload();
+          } else {
+            alert('Error: ' + result.error);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error al guardar tarjeta');
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      alert('Error al cargar datos de usuario');
+    }
+  });
+</script>

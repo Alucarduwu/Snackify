@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../public/Img/Icons/logo.webp';
+---
+
+<section class="signUp w-full max-w-md h-auto bg-[#2c2b2b98] rounded-2xl p-6 mx-auto my-6 shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+  <a href="/">
+    <div class="w-full h-[70px] flex items-center justify-center gap-4">
+      <Image src={logo} alt="Logo de Snackify" class="h-[70px] w-[70px]" />
+      <h3 class="text-[#ddd] font-bold text-3xl">Snackify</h3>
+    </div>
+  </a>
+
+  <form id="registerForm" class="flex flex-col justify-center mt-6 space-y-5" novalidate>
+    <h1 class="font-bold text-4xl text-white text-center">Crear Cuenta</h1>
+
+    <div class="flex flex-col text-white">
+      <label for="username" class="text-xl mb-1">Nombre</label>
+      <input type="text" name="username" required id="username" class="p-2 w-full border-b outline-none bg-transparent placeholder:text-gray-300" />
+    </div>
+
+    <div class="flex flex-col text-white">
+      <label for="last-name" class="text-xl mb-1">Apellido (opcional)</label>
+      <input type="text" name="last-name" id="last-name" class="p-2 w-full border-b outline-none bg-transparent placeholder:text-gray-300" />
+    </div>
+
+    <div class="flex flex-col text-white">
+      <label for="email" class="text-xl mb-1">Dirección de email</label>
+      <input type="email" name="email" required id="email" placeholder="example@gmail.com" class="p-2 w-full border-b outline-none bg-transparent placeholder-[#89CFF0]" />
+    </div>
+
+    <div class="flex flex-col text-white">
+      <label for="password" class="text-xl mb-1">Contraseña</label>
+      <input type="password" name="password" required id="password" class="p-2 w-full border-b outline-none bg-transparent" />
+    </div>
+
+    <div class="flex flex-col text-white">
+      <label for="confirm-password" class="text-xl mb-1">Confirmar Contraseña</label>
+      <input type="password" name="confirm-password" required id="confirm-password" class="p-2 w-full border-b outline-none bg-transparent" />
+    </div>
+
+    <div id="message" class="text-center text-sm font-semibold mt-2"></div>
+
+    <div class="flex justify-center">
+      <button type="submit" class="w-[70%] p-2 rounded-2xl text-lg font-bold text-amber-50 border border-amber-50 hover:bg-amber-50 hover:text-black transition-all">
+        Crear Cuenta
+      </button>
+    </div>
+
+    <div class="flex items-center gap-4 mt-4 text-gray-400">
+      <div class="flex-grow border-t border-gray-400/30"></div>
+      <span>¿Ya tienes cuenta?</span>
+      <div class="flex-grow border-t border-gray-400/30"></div>
+    </div>
+
+    <div class="flex justify-center">
+      <a href="/login" class="w-[90%] p-2 text-xl font-bold rounded-2xl text-center text-amber-50 border border-amber-50 hover:bg-amber-50 hover:text-black transition-all">
+        Iniciar Sesión
+      </a>
+    </div>
+  </form>
+</section>
+
+<script>
+  const form = document.getElementById('registerForm');
+  const message = document.getElementById('message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Formulario enviado');
+
+    const data = {
+      username: form.username.value.trim(),
+      "last-name": form['last-name'].value.trim(),
+      email: form.email.value.trim(),
+      password: form.password.value,
+      "confirm-password": form['confirm-password'].value,
+    };
+
+    console.log('Datos enviados:', data);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        message.textContent = '✅ Registro exitoso. Redirigiendo...';
+        message.style.color = 'lightgreen';
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        const errorText = await response.text();
+        console.log('Error del servidor:', errorText);
+        message.textContent = '❌ ' + errorText;
+        message.style.color = 'salmon';
+      }
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      message.textContent = '❌ Error inesperado en el servidor.';
+      message.style.color = 'salmon';
+    }
+  });
+</script>
+
+<style>
+  .signUp {
+    backdrop-filter: blur(5px);
+  }
+
+  @media screen and (max-width: 560px) {
+    .signUp {
+      width: 90%;
+      margin: 2rem auto;
+    }
+  }
+</style>

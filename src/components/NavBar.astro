@@ -1,0 +1,195 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../public/Img/Icons/logo.webp';
+---
+
+<header>
+    <nav class="navBar">
+        <div class="logo">
+            <a href="/">
+                <div class="flex">
+                    <Image src={logo} alt="Logo de Snackify" />
+                    <h2 class="logo">Snackify</h2>
+                </div>
+            </a>
+
+        </div>
+        <div class="group">
+            <ul class="navigation">
+                <li><div class="flex items-center">
+                    <a href="/user" id="account" class="options">Mi cuenta </a>
+                    <a href="/user" id="account"><ion-icon class="icons" name="person-circle-outline"></ion-icon></a>
+                    </div>
+                </li>
+                <li><div class="flex items-center">
+                    <a href="/orders" id="orders" class="options">Pedidos </a>
+                    <a href="/orders" id="orders"><ion-icon class="icons" name="pricetags-outline"></ion-icon></a>
+                    </div>
+                </li>
+                <li><div class="flex items-center">
+                    <a href="/shopCar" id="shopCar" class="options">Carrito </a>
+                    <a href="/shopCar" id="shopCar"><ion-icon class="icons" name="cart-outline"></ion-icon></a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+    </nav>
+</header>
+
+<style>
+    .navBar{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #0D0F1A;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #eee;
+    box-shadow: 0 10px 10px #12121233;
+    z-index: 2;
+}
+
+.logo{
+    display: flex;
+    align-items: center;
+}
+
+.icons{
+    font-size: 2rem;
+
+}
+
+.logo a{
+    text-decoration: none;
+    color: #eee;
+    letter-spacing: 0.2em;
+    font-size: 1.5em;
+    gap: 10px;
+}
+
+.logo img{
+    width: 50px;
+    height: 50px;
+}
+
+.group{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navigation{
+    top: 100%;
+    position: relative;
+    display: flex;
+    gap: 20px;
+}
+
+.navigation li a{
+    position: relative;
+    color: #eee;
+    letter-spacing: 0.2em;
+}
+
+.navigation li a::before{
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background-color: #b57f2ec1;
+    transform: scaleX(0);
+    transition: transform 0.4s ease-in-out;
+    transform-origin: right;
+}
+
+.navigation li a:hover::before{
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.navMenu{
+    display: none;
+}
+
+@media (max-width: 576px) {
+
+    
+    .navBar{
+        z-index: 3;
+    }
+    .logo{
+        flex-grow: 1;
+    }
+
+    .group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px; 
+    }
+    .navMenu{
+        display: flex;
+    }
+
+    .navigation li a {
+        color: #eee;
+        font-size: 1.2em;
+        letter-spacing: 0.1em;
+    }
+
+    .navMenu {
+        display: block;
+        cursor: pointer;
+        font-size: 2em;
+    }
+
+    .navMenu ion-icon {
+        color: #eee;
+    }
+
+    .options{
+        display: none;
+    }
+
+    .icons{
+        display: flex;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        z-index: 2;
+    }
+
+    .overlay.active {
+        display: block;
+    }
+}
+
+
+@media (min-width: 577px) and (max-width: 1024px) {
+    .navigation{
+        position: relative;
+        display: flex;
+        gap:10px;
+    }
+
+    .navigation li a{
+        letter-spacing: 0.1em;
+    }
+}
+</style>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>

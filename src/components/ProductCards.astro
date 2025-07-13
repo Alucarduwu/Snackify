@@ -1,0 +1,106 @@
+---
+import productsData from '../utils/productsData'
+interface ProductData {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  image: string;
+  description:string;
+}
+
+interface Props {
+  products: ProductData[];
+  category?: string;
+}
+
+const { products, category } = Astro.props;
+
+const filterProducts = category
+  ? products.filter((p: ProductData) => p.category.toLocaleLowerCase() === category.toLocaleLowerCase())
+  : products;
+
+---
+
+<div class="w-full h-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center py-[10px]">
+  {filterProducts.slice(0, 20).map((product: ProductData) => (
+    <div class="p-4 border border-[#535252] w-full max-w-[270px] min-h-[280px] bg-[#6f6f6f87] shadow-lg transition-transform duration-300 hover:scale-105">
+      <div class="product-image h-[70%] flex items-center relative">
+        <a href={`/products/${product.id}`}>
+          <img src={product.image} alt={product.name} class="w-full h-full object-contain" loading="lazy" decoding="async" />
+        </a>
+        <button 
+          id="picker" 
+          class="absolute bottom-0 right-0 px-[15px] py-[4px] bg-amber-50 text-xl font-bold rounded-full hover:bg-[#0D0F1A] hover:text-[#ddd]"
+          product-id={product.id}
+          product-name={product.name} 
+          product-image={product.image} 
+          product-category={product.category} 
+          product-price={product.price} 
+          product-description={product.description}
+        >+</button>
+      </div>
+      <div class="product-details text-center mt-[2px]">
+        <div class="text-start">
+          <p class="product-category text-sm sm:text-base font-semibold text-[#d5d5d5]">{product.category}</p>
+        </div>
+        <h2 class="product-name text-lg sm:text-xl font-bold text-[#ffffff] break-words">{product.name}</h2>
+        <span class="product-price text-sm sm:text-base text-[#b1b1b1]">${product.price}</span>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+
+
+<script>
+  import {$,$$} from '../utils/domUtils';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const handleSelectedProducts = () => {
+      const allProduct = $$("[product-id]");
+      
+      allProduct.forEach(el => {
+        el.addEventListener("click", () => {
+          const selectedProduct = el.getAttribute("product-id");
+          const selectedProductId = el.getAttribute("product-id");
+          const selectedProductName = el.getAttribute("product-name");
+          const selectedProductImage = el.getAttribute("product-image");
+          const selectedProductCategory = el.getAttribute("product-category");
+          const selectedProductPrice = el.getAttribute("product-price");
+          const selectedProductDescription = el.getAttribute("product-description")
+          const picker = $("#picker");
+
+          if (!selectedProduct) {
+            throw new Error("No se encontró el producto o no existe");
+          }
+          const productId = String(selectedProduct); 
+          let cart = JSON.parse(localStorage.getItem("cart"));
+          if (!Array.isArray(cart)) {
+            cart = [];
+          }
+          const productInCart = cart.find(item => String(item.id) === productId);
+          if (productInCart) {
+            productInCart.quantity += 1;
+          } else {
+            cart.push({
+              id: productId,
+              name: selectedProductName,
+              image: selectedProductImage,
+              category: selectedProductCategory,
+              price: selectedProductPrice,
+              description: selectedProductDescription,
+              quantity: 1,
+              addedAt: new Date().toISOString() 
+            });
+          }
+          localStorage.setItem("cart", JSON.stringify(cart));
+          alert(`✅ Producto añadido al carrito.`);
+        });
+      });
+    };
+
+    handleSelectedProducts();
+  });
+</script>

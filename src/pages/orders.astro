@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+import Principal from "../layouts/Principal.astro";
+import OrderHistory from "../components/OrderHistory.astro";
+---
+
+<Principal>
+  <main class="w-full min-h-[550px] flex justify-evenly items-center bg-[#1e1f27fe]">
+    <OrderHistory />
+  </main>
+</Principal>

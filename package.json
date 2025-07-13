@@ -1,0 +1,28 @@
+{
+  "name": "snackify",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.10",
+    "astro": "^5.7.5",
+    "bcrypt": "^6.0.0",
+    "cookie": "^1.0.2",
+    "dotenv": "^16.5.0",
+    "jose": "^6.0.11",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "sweetalert2": "^11.22.0",
+    "tailwindcss": "^4.1.10"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2"
+  }
+}

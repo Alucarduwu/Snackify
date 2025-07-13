@@ -1,0 +1,169 @@
+---
+export const prerender = false;
+---
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vista Empleado - Gestión de Órdenes</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #222;
+      color: white;
+    }
+    td select {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Vista Empleado - Gestión de Órdenes</h1>
+  <p id="status">Cargando órdenes...</p>
+  <table id="ordenesTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuario</th>
+        <th>Email</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Productos</th>
+        <th>Cambiar Estado</th>
+      </tr>
+    </thead>
+    <tbody id="ordenesBody"></tbody>
+  </table>
+
+  <script>
+    async function fetchOrdenes() {
+      const status = document.getElementById('status');
+      const table = document.getElementById('ordenesTable');
+      const tbody = document.getElementById('ordenesBody');
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        status.textContent = 'No hay token JWT, inicia sesión.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/orders', {
+          headers: { Authorization: 'Bearer ' + token },
+        });
+
+        if (!res.ok) {
+          status.textContent = 'Error al cargar órdenes: ' + res.statusText;
+          return;
+        }
+
+        const { user } = await res.json();
+        const ordenes = user.ordenes ?? [];
+
+        if (ordenes.length === 0) {
+          status.textContent = 'No hay órdenes.';
+          return;
+        }
+
+        // Limpiar tabla
+        tbody.innerHTML = '';
+
+        ordenes.forEach(orden => {
+          const tr = document.createElement('tr');
+
+          // ID
+          const tdId = document.createElement('td');
+          tdId.textContent = orden.id;
+          tr.appendChild(tdId);
+
+          // Usuario
+          const tdUser = document.createElement('td');
+          tdUser.textContent = orden.username || '—';
+          tr.appendChild(tdUser);
+
+          // Email
+          const tdEmail = document.createElement('td');
+          tdEmail.textContent = orden.email || '—';
+          tr.appendChild(tdEmail);
+
+          // Fecha
+          const tdFecha = document.createElement('td');
+          const fecha = new Date(orden.fecha);
+          tdFecha.textContent = fecha.toLocaleString();
+          tr.appendChild(tdFecha);
+
+          // Estado actual
+          const tdEstado = document.createElement('td');
+          tdEstado.textContent = orden.estado;
+          tr.appendChild(tdEstado);
+
+          // Productos
+          const tdProductos = document.createElement('td');
+          const ul = document.createElement('ul');
+          (orden.productos || []).forEach(prod => {
+            const li = document.createElement('li');
+            li.textContent = `${prod.nombre} - $${prod.precio} x ${prod.cantidad}`;
+            ul.appendChild(li);
+          });
+          tdProductos.appendChild(ul);
+          tr.appendChild(tdProductos);
+
+          // Selector para cambiar estado
+          const tdCambiar = document.createElement('td');
+          const select = document.createElement('select');
+          ['pendiente', 'enviado', 'entregado', 'cancelado'].forEach(estado => {
+            const option = document.createElement('option');
+            option.value = estado;
+            option.textContent = estado.charAt(0).toUpperCase() + estado.slice(1);
+            if (estado === orden.estado) option.selected = true;
+            select.appendChild(option);
+          });
+          select.addEventListener('change', async (e) => {
+            const nuevoEstado = e.target.value;
+            try {
+              // Aquí está el cambio: ruta dinámica con /api/orders/{id}/estado
+              const resPatch = await fetch(`/api/orders?id=${orden.id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: 'Bearer ' + token,
+                },
+                body: JSON.stringify({ estado: nuevoEstado }),
+              });
+              if (!resPatch.ok) {
+                alert('Error al cambiar estado');
+                e.target.value = orden.estado; // Revertir selección
+              } else {
+                orden.estado = nuevoEstado;
+                tdEstado.textContent = nuevoEstado;
+              }
+            } catch (err) {
+              alert('Error de red al cambiar estado');
+              e.target.value = orden.estado;
+            }
+          });
+          tdCambiar.appendChild(select);
+          tr.appendChild(tdCambiar);
+
+          tbody.appendChild(tr);
+        });
+
+        status.style.display = 'none';
+        table.style.display = 'table';
+
+      } catch (error) {
+        status.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchOrdenes);
+  </script>
+</body>
+</html>

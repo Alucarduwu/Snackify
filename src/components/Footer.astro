@@ -1,0 +1,249 @@
+---
+
+---
+<footer class="footer">
+    <div class="container">
+        <div class="bubbles"></div>
+        <div class="footerContent">
+        <div class="footerInfo">
+                <h2 class="text-3xl font-bold my-2">Sobre nosotros</h2>
+            <p>En Snakify nos apasiona endulzar tus momentos. Somos una tienda en línea dedicada a ofrecerte los mejores dulces con entrega rápida y segura. Desde clásicos hasta nuevas delicias, tenemos justo lo que necesitas para satisfacer tu antojo… ¡a solo un clic!</p>
+            <ul class="socialMedia">
+                <li><a href="https://facebook.com" target="_blank"><ion-icon name="logo-facebook"></ion-icon></a></li>
+                <li><a href="https://instagram.com" target="_blank"><ion-icon name="logo-instagram"></ion-icon></a></li>
+                <li><a href="https://youtube.com" target="_blank"><ion-icon name="logo-youtube"></ion-icon></a></li>
+                <li><a href="https://tiktok.com" target="_blank"><ion-icon name="logo-tiktok"></ion-icon></a></li>
+            </ul>
+        </div>
+        <div class="contactSection">
+            <div class="footerLinks">
+                <h2 class="text-2xl font-bold underline">Enlaces rápidos</h2>
+                <ul>
+                    <li><a download="/Docs/Terminos_y_Condiciones_Snackify.pdf" href="/">Terminos y condiciones</a></li>
+                    <li><a download="/Docs/Aviso_de_Privacidad_Snackify.pdf" href="/">Politicas de privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footerContact">
+                <h2 class="text-2xl font-bold underline">Contactanos</h2>
+                <ul>
+                    <li>Tel: <a href="tel:+524493714565">+52 1 449 371 4565</a></li>
+                    <li>Email: <a href="mailto:contacto@snakify.com">contacto@snakify.com</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dotted  rgba(238, 238, 238,0.3);
+    padding: 20px 5px;
+    border-radius: 30px;
+}
+
+.footer {
+    width: 100%;
+    min-height:100px;
+    position: relative;
+    padding: 50px 100px;
+    background: #0D0F1A;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #eee;
+    flex-direction: row;
+    margin-top: auto;
+    z-index: 1;
+}
+
+.footerContent{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: transparent;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.footerInfo{
+    width: 40%;
+    background-color: rgba(37, 38, 43, 0.6);
+    padding: 40px 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(238, 238, 238,0.3);
+}
+
+.socialMedia{
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    color: #eee;
+}
+
+.socialMedia a{
+    color: #eee;
+    font-size: 30px;
+}
+
+.socialMedia a:hover{
+    color: #b57f2ec1;
+}
+
+.socialMedia li{
+    margin-top: 15px;
+}
+
+.contactSection{
+    display: flex;
+    width: 50%;
+    gap: 30px;
+    flex-direction: row;
+}
+
+.footerLinks{
+    width: 50%;
+    background-color: rgba(37, 38, 43, 0.6);
+    padding: 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(238, 238, 238,0.3);
+}
+
+.footerLinks li{
+    margin: 15px 0;
+}
+
+.footerLinks a:hover{
+    color: #b57f2ec1;
+}
+
+.footerLinks a{
+    color: #eee;
+}
+
+.footerContact{
+    width: 55%;
+    background-color: rgba(37, 38, 43, 0.6);
+    padding: 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(238, 238, 238,0.3);
+}
+
+.footerContact li{
+    margin: 10px 0;
+}
+
+.footerContact a{
+    color: #eee;
+}
+
+.footerContact a:hover{
+    color: #b57f2ec1;
+}
+
+.footerLine {
+    width: 100%;
+    height: 3px;
+    background-color: rgba(238, 238, 238, 0.2);
+    margin: 20px 0;
+}
+
+@media (max-width:576px) {
+    .container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px dotted  rgba(238, 238, 238,0.3);
+        border-radius: 30px;
+    }
+
+    .footer {
+        width: 100%;
+        height: auto;
+        flex-direction: column;   
+        padding: 10px 15px;
+    }
+
+    .container {
+        width: auto;
+    }
+
+    .footerContent{
+        width: 95%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footerInfo{
+        width: 100%;
+        padding:10px;
+        margin: 10px 0;
+    }
+
+    .contactSection{
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .footerLinks{
+        width: 100%;
+        padding: 10px;
+    }
+    .footerContact{
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+    .footer {
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+    }
+
+    .footerContent {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contactSection{
+        display: flex;
+        width: 90%;
+        gap: 30px;
+    }
+
+    .footerInfo {
+        width: 90%;
+        padding: 30px;
+        margin: 20px 0;
+    }
+
+    .footerLinks {
+        height: auto;
+        width: 40%;
+        padding: 30px;
+        margin: 20px 0;
+    }
+
+    .footerContact {
+        width: 60%;
+        margin: 20px 0;
+        padding: 30px;
+    }
+
+}
+
+</style>

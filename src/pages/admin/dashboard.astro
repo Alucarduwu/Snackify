@@ -1,0 +1,101 @@
+---
+import { parse } from 'cookie';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import UsersData from '../../components/UsersData.astro';
+import OrderHistory from '../../components/OrderHistory.astro';
+import ShopResume from '../../components/ShopResume.astro';
+
+export const prerender = false;
+
+const cookieHeader = Astro.request.headers.get("cookie") || "";
+const cookies = parse(cookieHeader);
+const user_id = cookies.user_id;
+const rol = cookies.rol;
+
+if (!user_id || rol !== "admin") {
+  return new Response(null, {
+    status: 302,
+    headers: { Location: "/" }
+  });
+}
+
+const usuario = { nombre: "Admin Demo" };
+---
+
+<html lang="es" class="bg-gray-900 text-gray-100 antialiased">
+  <head>
+    <title>Panel de Administración</title>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <NavBar />
+
+    <main class="flex-grow max-w-6xl mx-auto p-8">
+      <header class="mb-12">
+        <h1 class="text-4xl font-extrabold text-white tracking-tight mb-2">Panel de Administración</h1>
+        <p class="text-lg text-gray-300">Bienvenido, <span class="font-semibold">{usuario.nombre}</span> 👑</p>
+      </header>
+
+      <nav class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <a
+          href="/admin/productos"
+          class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-lg shadow-lg hover:bg-indigo-600 transition-colors"
+          aria-label="Gestionar Productos"
+        >
+          <span class="text-5xl mb-4">🛒</span>
+          <span class="text-xl font-semibold text-white">Gestionar Productos</span>
+        </a>
+
+        <a
+          href="/admin/usuarios"
+          class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-lg shadow-lg hover:bg-indigo-600 transition-colors"
+          aria-label="Ver Usuarios"
+        >
+          <span class="text-5xl mb-4">👤</span>
+          <span class="text-xl font-semibold text-white">Ver Usuarios</span>
+        </a>
+
+        <a
+          href="/admin/pedidos"
+          class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-lg shadow-lg hover:bg-indigo-600 transition-colors"
+          aria-label="Controlar Pedidos"
+        >
+          <span class="text-5xl mb-4">📦</span>
+          <span class="text-xl font-semibold text-white">Controlar Pedidos</span>
+        </a>
+      </nav>
+
+      <section class="mb-14">
+        <h2 class="text-3xl font-semibold mb-6 border-b border-indigo-500 pb-2">Resumen General</h2>
+        <div class="bg-gray-800 rounded-lg p-6 shadow-inner">
+          <ShopResume />
+        </div>
+      </section>
+
+      <section class="mb-14">
+        <h2 class="text-3xl font-semibold mb-6 border-b border-indigo-500 pb-2">Historial de Pedidos</h2>
+        <div class="bg-gray-800 rounded-lg p-6 shadow-inner">
+          <OrderHistory />
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-semibold mb-6 border-b border-indigo-500 pb-2">Usuarios Registrados</h2>
+        <div class="bg-gray-800 rounded-lg p-6 shadow-inner">
+          <UsersData />
+        </div>
+      </section>
+
+      <div class="mt-16 text-center">
+        <a
+          href="/"
+          class="inline-block text-indigo-400 hover:text-indigo-600 font-medium transition-colors"
+        >
+          ← Volver a la tienda
+        </a>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>

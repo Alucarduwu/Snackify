@@ -1,0 +1,138 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../public/Img/Icons/logo.webp';
+---
+
+<section class="login-container flex items-center justify-center min-h-screen bg-gradient-to-br from-[#1e1e1e] to-[#2c2c2c] px-4">
+  <div class="login-box w-full max-w-md bg-[#2c2b2bf2] backdrop-blur-md rounded-3xl p-8 shadow-[0_0_25px_rgba(255,255,255,0.15)] transition-all duration-300">
+    
+    <a href="/" class="block mb-8">
+      <div class="flex items-center justify-center gap-4">
+        <Image src={logo} alt="Logo de Snackify" class="h-[64px] w-[64px]" />
+        <h3 class="text-[#f3f3f3] font-extrabold text-4xl tracking-wide">Snackify</h3>
+      </div>
+    </a>
+
+    <form id="loginForm" class="flex flex-col gap-6" novalidate>
+      <h1 class="text-3xl font-bold text-center text-white">Iniciar Sesión</h1>
+
+      <div class="w-full">
+        <label for="email" class="text-base text-white block mb-1">Dirección de email</label>
+        <input type="email" name="email" id="email" placeholder="example@gmail.com" required
+          class="w-full p-3 rounded-xl bg-[#ffffff0c] border border-gray-500 text-white placeholder-[#b0cce7] outline-none focus:ring-2 focus:ring-amber-400" />
+      </div>
+
+      <div class="w-full">
+        <label for="password" class="text-base text-white block mb-1">Contraseña</label>
+        <input type="password" name="password" id="password" required
+          class="w-full p-3 rounded-xl bg-[#ffffff0c] border border-gray-500 text-white outline-none focus:ring-2 focus:ring-amber-400" />
+      </div>
+
+      <div id="message" class="text-center text-sm font-semibold mt-2"></div>
+
+      <p class="text-xs text-[#ccc] leading-snug">
+        Al identificarte aceptas nuestras 
+        <a download href="/Docs/Condiciones_de_Uso_y_Ventas_Snackify.pdf" class="text-sky-400 underline hover:text-sky-300">Condiciones de uso</a> y 
+        <a download href="/Docs/Aviso_de_Privacidad_Snackify.pdf" class="text-sky-400 underline hover:text-sky-300">Aviso de privacidad</a>.
+      </p>
+
+      <button type="submit" class="w-full py-3 rounded-xl text-lg font-bold text-black bg-amber-400 hover:bg-amber-300 transition">
+        Iniciar Sesión
+      </button>
+
+      <div class="w-full text-right">
+        <a href="/" class="text-sm text-gray-400 hover:underline">¿Has olvidado tu contraseña?</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex-grow border-t border-gray-500/40"></div>
+        <span class="text-gray-400 text-sm">¿Eres nuevo?</span>
+        <div class="flex-grow border-t border-gray-500/40"></div>
+      </div>
+
+      <a href="/signUp" class="block text-center w-full py-3 rounded-xl text-lg font-bold text-amber-400 border border-amber-400 hover:bg-amber-400 hover:text-black transition">
+        Crear cuenta
+      </a>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const message = document.getElementById('message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+      email: form.email.value.trim(),
+      password: form.password.value,
+    };
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const resData = await response.json();
+
+        // Guardar token JWT
+        localStorage.setItem('token', resData.token);
+
+        if (!resData.user || !resData.user.role || !resData.redirectTo) {
+          message.textContent = '❌ No se recibió información suficiente del servidor.';
+          message.style.color = 'salmon';
+          console.error('❌ Datos incompletos:', resData);
+          return;
+        }
+
+        message.textContent = '✅ Inicio de sesión exitoso. Redirigiendo...';
+        message.style.color = 'lightgreen';
+
+        setTimeout(() => {
+          window.location.href = resData.redirectTo;
+        }, 1500);
+
+      } else {
+        const errorText = await response.text();
+        message.textContent = '❌ ' + errorText;
+        message.style.color = 'salmon';
+      }
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      message.textContent = '❌ Error inesperado en el servidor.';
+      message.style.color = 'salmon';
+    }
+  });
+</script>
+
+
+<style>
+  @keyframes fadeUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .login-box {
+    animation: fadeUp 0.6s ease-out;
+  }
+
+  @media (max-width: 480px) {
+    .login-box {
+      padding: 1.5rem;
+    }
+
+    .login-box h1 {
+      font-size: 1.75rem;
+    }
+  }
+</style>

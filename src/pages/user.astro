@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+import Principal from '../layouts/Principal.astro';
+import UsersData from "../components/UsersData.astro";
+---
+
+<Principal>
+  <main
+    class="
+      bg-[#1e1f27fe] 
+      w-full 
+      min-h-[90vh] 
+      flex 
+      flex-col 
+      items-center 
+      justify-center
+      px-4
+      py-8
+      md:py-12
+      lg:py-16
+    "
+  >
+    <div class="w-full max-w-7xl">
+      <UsersData />
+    </div>
+  </main>
+</Principal>
+

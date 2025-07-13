@@ -1,0 +1,26 @@
+---
+import "../styles/global.css";
+import Principal from '../layouts/Principal.astro';
+import CategoryBar from "../components/CategoryBar.astro";
+import Banner from '../components/Banner.astro'
+import productsData from '../utils/productsData';
+import ProductCards from "../components/ProductCards.astro";
+import SearchInput from "../components/SearchInput.astro";
+
+const products = productsData;
+---
+
+<Principal>
+	<CategoryBar/>
+	
+	<main class="w-full bg-[#1e1f27fe] flex flex-col items-center px-4 min-h-[500px]">
+		<div class=" flex w-[80%] justify-between">
+			<h2 class="text-4xl font-bold m-5 text-[#ddd]">Nuestra chocolateía.</h2>
+			
+			<!--<SearchInput/> -->
+		</div>
+		
+		<ProductCards products={products} category="chocolatería"/>
+	</main>
+
+</Principal>

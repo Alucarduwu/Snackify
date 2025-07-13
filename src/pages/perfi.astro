@@ -1,0 +1,33 @@
+---
+// src/pages/perfil.astro
+import { parse } from 'cookie';
+import { connectDB } from '../lib/db';
+
+const cookies = Astro.request.headers.get("cookie") || "";
+const parsed = parse(cookies);
+const userId = parsed.user_id;
+
+let user = null;
+
+if (userId) {
+  const db = await connectDB();
+  const [rows]: any = await db.execute("SELECT * FROM usuarios WHERE id = ?", [userId]);
+  user = rows[0];
+}
+---
+
+<html lang="es">
+  <head><title>Perfil</title></head>
+  <body class="bg-gray-100 text-black p-6">
+    {user ? (
+      <>
+        <h1 class="text-2xl font-bold mb-4">Bienvenido, {user.nombre}</h1>
+        <p><strong>Nombre:</strong> {user.nombre} {user.apellido}</p>
+        <p><strong>Correo:</strong> {user.correo}</p>
+        <p><strong>Rol:</strong> {user.rol}</p>
+      </>
+    ) : (
+      <p>No has iniciado sesión.</p>
+    )}
+  </body>
+</html>

@@ -1,0 +1,90 @@
+---
+import productsData from "../../utils/productsData";
+import Principal from "../../layouts/Principal.astro";
+import CategoryBar from "../../components/CategoryBar.astro";
+
+export async function getStaticPaths() {
+  const paths = productsData.map((product) => ({
+    params: { id: product.id.toString() },
+  }));
+
+  return paths; 
+}
+const { id } = Astro.params; 
+const product = productsData.find((p) => p.id.toString() === id);
+if (!product) {
+  throw new Error("Producto no encontrado");
+}
+
+
+---
+
+<Principal>
+	<CategoryBar/>
+	
+	<main class="bg-gradient-to-b from-[#1e1f27fe] to-[#4b4c59c1] w-full min-h-screen flex flex-col justify-center items-center px-4 py-6">
+  <div class="w-full sm:w-[80%] flex flex-col sm:flex-row bg-[#00000095] rounded-xl overflow-hidden shadow-lg">
+    <div class="w-full sm:w-[40%] flex justify-center items-center bg-gradient-to-b from-[#0f0f0f] via-[#1c1c1c] to-[#2a2a2a] p-4">
+      <img src={product.image} alt={product.name} class="h-[200px] w-auto sm:w-[350px] sm:h-[400px] object-contain"/>
+    </div>
+    <div class="w-full sm:w-[60%] text-[#ddd] flex flex-col items-center justify-between p-4 gap-4">
+      <div class="w-full">
+        <h1 class="text-3xl sm:text-5xl font-bold mb-2 text-center">{product.name}</h1>
+        <p class="text-lg sm:text-xl font-semibold mb-4 text-center">Categoría: {product.category}</p>
+        <div class="w-full p-4 rounded-md">
+          <p class="text-base sm:text-lg">{product.description}</p>
+        </div>
+      </div>
+      <div class="w-full flex flex-row justify-between items-center mt-4 gap-4">
+        <p class="text-xl font-semibold">Precio: ${product.price}</p>
+        <button class="text-xl border px-4 py-2 rounded-xl transition duration-200 hover:bg-white hover:text-black" id="add-to-cart" data-id={product.id} data-name={product.name} data-image={product.image} data-category={product.category} data-price={product.price} data-description={product.description}>
+          Añadir al carrito
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById("add-to-cart");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      const productId = String(btn.dataset.id);
+      const productName = btn.dataset.name;
+      const productImage = btn.dataset.image;
+      const productCategory = btn.dataset.category;
+      const productPrice = btn.dataset.price;
+      const productDescription = btn.dataset.description;
+
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      if (!Array.isArray(cart)) {
+        cart = [];
+      }
+
+      const productInCart = cart.find(item => String(item.id) === productId);
+      if (productInCart) {
+        productInCart.quantity += 1;
+      } else {
+        cart.push({
+          id: productId,
+          name: productName,
+          image: productImage,
+          category: productCategory,
+          price: productPrice,
+          description: productDescription,
+          quantity: 1,
+          addedAt: new Date().toISOString()
+        });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert(`✅ Producto añadido al carrito.`);
+    });
+  });
+</script>
+
+
+</Principal>

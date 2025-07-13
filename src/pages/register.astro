@@ -1,0 +1,134 @@
+---
+export const prerender = false;
+---
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Registro de Usuario</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        padding: 40px;
+      }
+      form {
+        background-color: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgb(0 0 0 / 0.1);
+        width: 350px;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 10px 8px;
+        margin-bottom: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+      }
+      button {
+        width: 100%;
+        background-color: #16a34a;
+        color: white;
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      button:hover {
+        background-color: #15803d;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="registerForm">
+      <h2 style="text-align:center; margin-bottom:24px;">Registro</h2>
+
+      <label for="nombre">Nombre</label>
+      <input id="nombre" name="nombre" required />
+
+      <label for="apellido">Apellido</label>
+      <input id="apellido" name="apellido" required />
+
+      <label for="correo">Correo</label>
+      <input id="correo" type="email" name="correo" required />
+
+      <label for="contrasena">Contraseña</label>
+      <input id="contrasena" type="password" name="contrasena" required />
+
+      <label for="confirmContrasena">Confirmar Contraseña</label>
+      <input id="confirmContrasena" type="password" name="confirmContrasena" required />
+
+      <button type="submit">Crear cuenta</button>
+    </form>
+
+    <script>
+      const form = document.getElementById('registerForm');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+
+        const nombre = formData.get('nombre');
+        const apellido = formData.get('apellido');
+        const correo = formData.get('correo');
+        const contrasena = formData.get('contrasena');
+        const confirmContrasena = formData.get('confirmContrasena');
+
+        if (contrasena !== confirmContrasena) {
+          alert('Las contraseñas no coinciden.');
+          return;
+        }
+
+        const data = {
+          username: nombre,
+          "last-name": apellido,
+          email: correo,
+          password: contrasena,
+          "confirm-password": confirmContrasena
+        };
+
+        try {
+          const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          const result = await res.json();
+
+          if (result.success) {
+            document.cookie = `user_id=${result.user.id}; path=/`;
+            document.cookie = `rol=${result.user.role}; path=/`;
+
+            alert('Registro exitoso');
+
+            // Redirección según el rol
+            if (result.user.role === 'admin') {
+              window.location.href = '/admin/dashboard';
+            } else if (result.user.role === 'empleado') {
+              window.location.href = '/admin/empleado';
+            } else {
+              window.location.href = '/perfil';
+            }
+          } else {
+            alert('Error: ' + result.message);
+          }
+        } catch (error) {
+          alert('Error en la solicitud: ' + error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

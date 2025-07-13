@@ -1,0 +1,138 @@
+---
+export const prerender = false;
+---
+
+<section id="order-section" class="size-full flex flex-col sm:flex-row justify-evenly items-center gap-2.5 text-white">
+  <p id="loading-msg">Cargando órdenes...</p>
+</section>
+
+<script type="module" client:load>
+  const section = document.getElementById('order-section');
+  const loadingMsg = document.getElementById('loading-msg');
+
+  async function fetchOrders() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      loadingMsg.textContent = 'No hay token JWT en localStorage.';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        loadingMsg.textContent = `Error al obtener órdenes: ${text}`;
+        return;
+      }
+
+      const data = await res.json();
+      const orders = data.user?.ordenes ?? [];
+
+      if (orders.length === 0) {
+        loadingMsg.textContent = 'No hay pedidos.';
+        return;
+      }
+
+      loadingMsg.remove();
+
+      const categories = [
+        { title: 'Pedidos Enviados', filter: 'enviado' },
+        { title: 'Pedidos Pendientes', filter: 'pendiente' },
+        { title: 'Pedidos Entregados', filter: 'entregado' },
+        { title: 'Pedidos Cancelados', filter: 'cancelado' },
+      ];
+
+      categories.forEach(({ title, filter }) => {
+        const filtered = orders.filter(o => o.estado === filter);
+        const container = document.createElement('div');
+        container.className = 'w-[90%] sm:w-[20%] h-[300px] sm:h-[500px] bg-[#6f6f6f87] rounded-md flex flex-col items-center';
+
+        const h2 = document.createElement('h2');
+        h2.className = 'text-2xl font-bold';
+        h2.textContent = title;
+        container.appendChild(h2);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'size-full p-2 overflow-y-auto no-scrollbar';
+
+        if (filtered.length === 0) {
+          const p = document.createElement('p');
+          p.className = 'text-center mt-2';
+          p.textContent = 'No hay pedidos';
+          contentDiv.appendChild(p);
+        } else {
+          filtered.forEach(pedido => {
+            const summary = document.createElement('summary');
+            summary.className = 'w-full h-auto p-2 mb-2 rounded-br-md bg-[#1e1e1e87]';
+
+            const idH2 = document.createElement('h2');
+            idH2.className = 'text-lg font-bold';
+            
+            summary.appendChild(idH2);
+
+            const details = document.createElement('details');
+
+            const fechaP = document.createElement('p');
+            fechaP.textContent = `Fecha: ${new Date(pedido.fecha).toLocaleDateString()}`;
+            details.appendChild(fechaP);
+
+            const precioP = document.createElement('p');
+            
+            details.appendChild(precioP);
+
+            const estadoP = document.createElement('p');
+            estadoP.textContent = `Estado: ${pedido.estado ?? 'pendiente'}`;
+            details.appendChild(estadoP);
+
+            const productosH2 = document.createElement('h2');
+            productosH2.textContent = 'Productos:';
+            details.appendChild(productosH2);
+
+            const ul = document.createElement('ul');
+            ul.className = 'flex flex-col gap-1 items-center';
+
+            (pedido.productos ?? []).forEach(producto => {
+              const li = document.createElement('li');
+              li.className = 'w-[90%] flex bg-[#6f6f6f90] p-2 rounded-md items-center gap-2';
+
+              const img = document.createElement('img');
+              img.src = producto.imagen;
+              img.alt = producto.nombre;
+              img.className = 'w-[50px] h-[50px] object-contain';
+              li.appendChild(img);
+
+              const divText = document.createElement('div');
+              divText.className = 'flex flex-col text-sm';
+
+              const nombreSpan = document.createElement('span');
+              nombreSpan.textContent = `${producto.nombre} - ${producto.categoria}`;
+              divText.appendChild(nombreSpan);
+
+              const precioSpan = document.createElement('span');
+              precioSpan.textContent = `$${producto.precio}`;
+              divText.appendChild(precioSpan);
+
+              li.appendChild(divText);
+              ul.appendChild(li);
+            });
+
+            details.appendChild(ul);
+            summary.appendChild(details);
+            contentDiv.appendChild(summary);
+          });
+        }
+
+        container.appendChild(contentDiv);
+        section.appendChild(container);
+      });
+
+    } catch (error) {
+      loadingMsg.textContent = `Error en la llamada a la API: ${error.message}`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchOrders);
+</script>

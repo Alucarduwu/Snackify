@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+import Principal from '../layouts/Principal.astro';
+import CategoryBar from "../components/CategoryBar.astro";
+import Banner from '../components/Banner.astro'
+import productsData from '../utils/productsData';
+import ProductCards from "../components/ProductCards.astro";
+import SearchInput from "../components/SearchInput.astro";
+import ShopResume from "../components/ShopResume.astro";
+
+const products = productsData;
+---
+
+<Principal>
+	<main class="bg-[#1e1f27fe] w-full h-screen flex flex-col items-center px-4">
+		<ShopResume/>
+	</main>
+
+</Principal>
+
+<script>
+
+</script>

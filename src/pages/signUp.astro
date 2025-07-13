@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+import Layout from '../layouts/Layout.astro';
+import SignUpForm from "../components/SignUpForm.astro";
+---
+
+<Layout>
+	<main class=" w-full min-h-screen flex justify-center items-center" >
+        <SignUpForm/>
+    </main>
+</Layout>
+
+
+
+<style>
+
+main {
+    background-color: #000;
+    background-image: 
+        linear-gradient(rgba(20, 18, 18, 0.4), rgba(0, 0, 0, 0.1)), 
+        url("/Img/Icons/descarga.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+
+
+
+</style>
