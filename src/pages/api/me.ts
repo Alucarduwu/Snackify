@@ -65,14 +65,16 @@ export const GET: APIRoute = async ({ request }) => {
     for (const orden of ordenesRows) {
       const [productosRows]: any = await db.execute(
         `SELECT 
-           p.nombre,
-           p.categoria,
-           p.precio,
-           op.cantidad,
-           p.imagen
-         FROM orden_productos op
-         JOIN productos p ON op.producto_id = p.id
-         WHERE op.orden_id = ?`,
+  p.nombre,
+  c.nombre AS categoria,
+  p.precio,
+  op.cantidad,
+  p.imagen
+FROM orden_productos op
+JOIN productos p ON op.producto_id = p.id
+JOIN categorias c ON p.categoria_id = c.id
+WHERE op.orden_id = ?
+`,
         [orden.id]
       );
       orden.productos = productosRows ?? [];
