@@ -7,10 +7,23 @@ export const prerender = false;
 
 const JWT_SECRET = new TextEncoder().encode('tu_secreto_super_seguro_aqui');
 
+// Función para validar la seguridad de la contraseña
+function isPasswordSecure(password: string): boolean {
+  const secureRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&/#])[A-Za-z\d@$!%*?&/#]{8,}$/;
+  return secureRegex.test(password);
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { username, 'last-name': lastName, email, password, 'confirm-password': confirmPassword } = body;
+    const {
+      username,
+      'last-name': lastName,
+      email,
+      password,
+      'confirm-password': confirmPassword,
+    } = body;
 
     if (!username || !email || !password || !confirmPassword) {
       return new Response(
@@ -22,6 +35,17 @@ export const POST: APIRoute = async ({ request }) => {
     if (password !== confirmPassword) {
       return new Response(
         JSON.stringify({ success: false, message: 'Las contraseñas no coinciden' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!isPasswordSecure(password)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message:
+            'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo especial',
+        }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -74,7 +98,6 @@ export const POST: APIRoute = async ({ request }) => {
       role: rolesMap[roleId] || 'user',
     };
 
-    // Crear token JWT solo con datos necesarios
     const token = await new SignJWT({
       id: newUser.id,
       username: newUser.username,
