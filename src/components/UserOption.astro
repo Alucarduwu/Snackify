@@ -1,8 +1,12 @@
 ---
-import { useState, useEffect } from 'react'; // O el framework que uses (Astro tiene integración React, Solid, Svelte, etc)
+import { useState, useEffect } from 'react';
 ---
 
-<div id="container" class="w-[90%] text-white rounded-2xl p-2 flex flex-col gap-4" data-accordion>
+<div
+  id="container"
+  class="w-[90%] text-white rounded-2xl p-2 flex flex-col gap-4"
+  data-accordion
+>
   <p id="loading-text">Cargando datos...</p>
 </div>
 
@@ -15,59 +19,65 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
     }
 
     try {
+      // Obtener datos del usuario
       const res = await fetch('/api/me', {
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
+
       if (!res.ok) throw new Error('No autorizado');
 
       const { user } = await res.json();
 
-      // Aquí construimos el HTML dinámico usando los datos recibidos,
-      // insertamos el HTML dentro del contenedor, reemplazando el "Cargando datos..."
       const container = document.getElementById('container');
       const loadingText = document.getElementById('loading-text');
       if (loadingText) loadingText.remove();
 
-      // Funciones auxiliares para generar la lista de direcciones y métodos de pago
+      // Crear HTML para direcciones
       const crearDireccionesHTML = () => {
         if (!user.direcciones || user.direcciones.length === 0) {
           return `<p>No tienes direcciones guardadas.</p>`;
         }
-        return user.direcciones.map(dir => `
-          <div class="mb-4 border-b border-white/30 pb-2">
-            <p>${dir.calle}, ${dir.ciudad}, ${dir.estado}, ${dir.codigo_postal}, ${dir.pais}</p>
-            <p class="text-sm text-white/70">${dir.referencia ?? ''}</p>
-            <div class="w-full flex flex-col sm:flex-row justify-between gap-2 mt-2">
-              <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center hover:bg-black hover:font-semibold">Editar dirección</a>
-              <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar dirección</a>
-            </div>
-          </div>
-        `).join('');
+        return user.direcciones
+          .map(
+            (dir) => `
+            <div class="mb-4 border-b border-white/30 pb-2">
+              <p>${dir.calle}, ${dir.ciudad}, ${dir.estado}, ${dir.codigo_postal}, ${dir.pais}</p>
+              <p class="text-sm text-white/70">${dir.referencia ?? ''}</p>
+              <div class="w-full flex flex-col sm:flex-row justify-between gap-2 mt-2">
+                <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center hover:bg-black hover:font-semibold">Editar dirección</a>
+                <a href="#" class="border p-2 w-full sm:w-[200px] rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar dirección</a>
+              </div>
+            </div>`
+          )
+          .join('');
       };
 
-      const crearMetodosPagoHTML = () => {
-        if (!user.metodos_pago || user.metodos_pago.length === 0) {
-          return `<p>No tienes métodos de pago guardados.</p>`;
-        }
-        return user.metodos_pago.map(tarjeta => `
-          <div class="sm:w-1/2 w-[90%] flex flex-col h-[100px] sm:h-[150px] border p-3 rounded-2xl bg-gray-200 relative text-black">
-            <div class="flex justify-between items-start">
-              <h3 class="text-md sm:text-xl">${tarjeta.numero}</h3>
-              <img src="${tarjeta.logo}" alt="Logo de ${tarjeta.tipo}" class="w-[40px] sm:w-[60px]" />
-            </div>
-            <div class="absolute bottom-[35px] left-[10px] text-sm font-semibold">
-              <span>CVV: ${tarjeta.cvv}</span>
-            </div>
-            <div class="absolute bottom-[10px] right-[10px] text-sm font-semibold">
-              <span>Exp: ${tarjeta.expiration}</span>
-            </div>
-            <div class="flex gap-2 mt-2">
-              <a href="#" class="border p-2 rounded-2xl text-center hover:bg-black hover:font-semibold">Editar</a>
-              <a href="#" class="border p-2 rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar</a>
-            </div>
-          </div>
-        `).join('');
-      };
+      // Crear HTML para métodos de pago
+      // Dentro de crearMetodosPagoHTML
+const crearMetodosPagoHTML = () => {
+  if (!user.metodos_pago || user.metodos_pago.length === 0) {
+    return `<p>No tienes métodos de pago guardados.</p>`;
+  }
+  return user.metodos_pago
+    .map(
+      (tarjeta) => `
+      <div class="sm:w-1/2 w-[90%] flex flex-col h-[100px] sm:h-[150px] border p-3 rounded-2xl bg-gray-200 relative text-black">
+        <div class="flex justify-between items-start">
+          <h3 class="text-md sm:text-xl">**** **** **** ${tarjeta.ultimos4}</h3>
+          <img src="${tarjeta.logo}" alt="Logo de ${tarjeta.tipo}" class="w-[40px] sm:w-[60px]" />
+        </div>
+        <div class="absolute bottom-[10px] right-[10px] text-sm font-semibold">
+          <span>Exp: ${tarjeta.expiration}</span>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <a href="#" class="border p-2 rounded-2xl text-center hover:bg-black hover:font-semibold">Editar</a>
+          <a href="#" class="border p-2 rounded-2xl text-center text-red-500 bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Eliminar</a>
+        </div>
+      </div>`
+    )
+    .join('');
+};
+
 
       container.innerHTML = `
         <!-- Dirección de envío -->
@@ -76,7 +86,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             <h3 class="font-semibold text-2xl flex items-center gap-2">
               <ion-icon name="location-outline"></ion-icon> Dirección de envío
             </h3>
-            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl"></ion-icon>
           </summary>
           <div class="pl-4 pt-2">
             ${crearDireccionesHTML()}
@@ -105,7 +115,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             <h3 class="font-semibold text-2xl flex items-center gap-2">
               <ion-icon name="cash-outline"></ion-icon> Métodos de pago
             </h3>
-            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl"></ion-icon>
           </summary>
           <div class="pl-4 pt-2 overflow-hidden transition-all duration-500 ease-in-out">
             ${crearMetodosPagoHTML()}
@@ -113,13 +123,34 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             <!-- Añadir tarjeta -->
             <div class="mt-4 border-t border-white/20 pt-4">
               <h4 class="font-semibold mb-2">Agregar nueva tarjeta</h4>
-              <form id="form-tarjeta" class="flex flex-col gap-2">
-                <input required name="numero" placeholder="Número de tarjeta" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
-                <input required name="cvv" placeholder="CVV" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
-                <input required name="expiration" placeholder="Fecha de expiración (MM/AA)" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
-                <input required name="tipo" placeholder="Tipo de tarjeta (Visa, Mastercard...)" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
-                <input name="logo" placeholder="URL del logo" class="p-2 rounded bg-white/10 border border-white/40 text-white" />
-                <button type="submit" class="bg-amber-400 text-black font-semibold rounded p-2 hover:bg-amber-300 transition">
+              <form id="form-tarjeta" class="flex flex-col gap-2 text-black">
+                <input required name="numero" placeholder="Número de tarjeta" maxlength="16"
+                  class="p-2 rounded bg-white/10 border border-white/40 text-white"
+                  oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 16)" />
+                
+                <input required name="cvv" placeholder="CVV"
+                  class="p-2 rounded bg-white/10 border border-white/40 text-white"
+                  oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 4)" />
+
+                <div class="flex gap-2">
+                  <select required name="mes" class="w-1/2 p-2 rounded bg-white/10 border border-white/40 text-white">
+                    <option value="">Mes</option>
+                    ${Array.from({ length: 12 }, (_, i) => {
+                      const mes = (i + 1).toString().padStart(2, '0');
+                      return `<option value="${mes}">${mes}</option>`;
+                    }).join('')}
+                  </select>
+                  <select required name="anio" class="w-1/2 p-2 rounded bg-white/10 border border-white/40 text-white">
+                    <option value="">Año</option>
+                    ${Array.from({ length: 20 }, (_, i) => {
+                      const anio = new Date().getFullYear() + i;
+                      return `<option value="${anio.toString().slice(2)}">${anio}</option>`;
+                    }).join('')}
+                  </select>
+                </div>
+
+                <button type="submit"
+                  class="bg-amber-400 text-black font-semibold rounded p-2 hover:bg-amber-300 transition">
                   Guardar tarjeta
                 </button>
               </form>
@@ -133,7 +164,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             <h3 class="font-semibold text-2xl flex items-center gap-2">
               <ion-icon name="person-outline"></ion-icon> Opciones de cuenta
             </h3>
-            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl" />
+            <ion-icon name="caret-forward-outline" class="transition-transform duration-300 group-open:rotate-90 text-3xl"></ion-icon>
           </summary>
           <div class="pl-4 pt-2 overflow-hidden transition-all duration-500 ease-in-out flex flex-col sm:flex-row w-full p-2 gap-2">
             <a href="#" class="border p-2 w-full sm:w-[150px] rounded-2xl text-center text-white bg-[#0c0a0a] hover:bg-white hover:text-black hover:font-semibold">Editar Datos</a>
@@ -142,7 +173,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
         </details>
       `;
 
-      // Reusar tu código para manejar envíos de formularios después de haber insertado el HTML
+      // Manejador para agregar dirección
       const formDireccion = document.getElementById('form-direccion');
       formDireccion?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -162,7 +193,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(data),
           });
@@ -180,25 +211,65 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
         }
       });
 
+      // Manejador para agregar tarjeta
       const formTarjeta = document.getElementById('form-tarjeta');
       formTarjeta?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
 
-        const data = {
-          numero: form.numero.value,
-          cvv: form.cvv.value,
-          expiration: form.expiration.value,
-          tipo: form.tipo.value,
-          logo: form.logo.value,
-        };
+        const numero = form.numero.value.trim();
+        const cvv = form.cvv.value.trim();
+        const expiration = `${form.mes.value}/${form.anio.value}`;
+
+        // Detectar tipo de tarjeta
+        let tipo = 'Desconocida';
+        let logo = '/Img/Icons/Visa.webp';
+
+        if (/^4/.test(numero)) {
+          tipo = 'Visa';
+          logo = '/Img/Icons/Visa.webp';
+        } else if (/^5[1-5]/.test(numero)) {
+          tipo = 'MasterCard';
+          logo = '/Img/Icons/MasterCard.webp';
+        } else if (/^3[47]/.test(numero)) {
+          tipo = 'American Express';
+          logo = '/Img/Icons/Amex.webp';
+        }
+
+        const errores = [];
+
+        if (!/^\d{16}$/.test(numero)) {
+          errores.push('El número de tarjeta debe tener exactamente 16 dígitos.');
+        }
+
+        if (!/^\d{3,4}$/.test(cvv)) {
+          errores.push('El CVV debe tener 3 o 4 dígitos.');
+        }
+
+        if (!/^\d{2}\/\d{2}$/.test(expiration)) {
+          errores.push('La fecha de expiración debe tener el formato MM/AA.');
+        } else {
+          const [mes, anio] = expiration.split('/').map((str) => parseInt(str));
+          const ahora = new Date();
+          const expDate = new Date(2000 + anio, mes);
+          if (isNaN(mes) || isNaN(anio) || mes < 1 || mes > 12 || expDate <= ahora) {
+            errores.push('La fecha de expiración no puede estar vencida.');
+          }
+        }
+
+        if (errores.length > 0) {
+          alert('Errores:\n' + errores.join('\n'));
+          return;
+        }
+
+        const data = { numero, cvv, expiration, tipo, logo };
 
         try {
           const res = await fetch('/api/metodopago/add', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(data),
           });
@@ -208,7 +279,7 @@ import { useState, useEffect } from 'react'; // O el framework que uses (Astro t
             alert('Tarjeta guardada con éxito');
             location.reload();
           } else {
-            alert('Error: ' + result.error);
+            alert('Error: ' + (result.error || result.message || 'Error desconocido'));
           }
         } catch (err) {
           console.error(err);
