@@ -75,8 +75,6 @@ export const GET: APIRoute = async ({ request }) => {
         imagen: p.imagen,
         cantidad: p.cantidad
       }));
-
-      
     }
 
     user.ordenes = ordenesRows ?? [];
@@ -85,7 +83,6 @@ export const GET: APIRoute = async ({ request }) => {
       JSON.stringify({ user }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error(error);
     return new Response(
@@ -174,7 +171,6 @@ export const PATCH: APIRoute = async ({ request }) => {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ error: 'Error en el servidor' }), {

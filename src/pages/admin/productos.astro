@@ -1,65 +1,191 @@
 ---
+import "../../styles/global.css";
 ---
 
-<html lang="es" class="bg-gray-100 min-h-screen p-6">
+<html lang="es" class="bg-gray-50 min-h-screen p-6 font-sans">
   <head>
     <meta charset="UTF-8" />
-    <title>Admin Productos CRUD</title>
-    <!-- ✅ Tailwind CSS sin CORS -->
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.tailwindcss.com';
-        document.head.appendChild(s);
-      });
-    </script>
+    <title>Admin Productos CRUD - Debug</title>
   </head>
-  <body>
-    <h1 class="text-center text-3xl font-bold mb-6">Administrar Productos</h1>
+  <body class="bg-gray-50 text-gray-800">
+    <main class="max-w-6xl mx-auto">
+      <h1 class="text-center text-4xl font-extrabold mb-10 pt-6 text-gray-900">
+        Panel de Administración de Productos (Debug con Logs)
+      </h1>
 
-    <div id="error-msg" class="text-red-600 text-center mb-4"></div>
-    <div id="log-msg" class="text-green-700 text-center mb-4"></div>
+      <section aria-live="polite" class="mb-6">
+        <p
+          id="error-msg"
+          class="mx-auto max-w-xl border border-red-600 bg-red-100 text-red-600 font-semibold p-3 rounded-md shadow-md text-center hidden"
+          role="alert"
+        ></p>
+        <p
+          id="log-msg"
+          class="mx-auto max-w-xl border border-green-600 bg-green-100 text-green-700 font-semibold p-3 rounded-md shadow-md text-center hidden"
+          role="status"
+        ></p>
+      </section>
 
-    <div class="max-w-5xl mx-auto">
-      <table
-        id="productos-table"
-        class="min-w-full bg-white rounded shadow mb-6 text-sm border border-gray-300"
+      <section
+        class="overflow-x-auto rounded-lg shadow-lg mb-12 bg-white border border-gray-200"
       >
-        <thead class="bg-gray-200 text-gray-800">
-          <tr>
-            <th class="p-2 border">ID</th>
-            <th class="p-2 border">Nombre</th>
-            <th class="p-2 border">Categoría</th>
-            <th class="p-2 border">Precio</th>
-            <th class="p-2 border">Imagen</th>
-            <th class="p-2 border">Descripción</th>
-            <th class="p-2 border">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="productos-body"></tbody>
-      </table>
+        <table
+          id="productos-table"
+          class="w-full table-auto border-collapse text-sm"
+          aria-label="Lista de productos"
+        >
+          <thead
+            class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold tracking-wide"
+          >
+            <tr>
+              <th scope="col" class="p-3 border border-gray-300 text-left">
+                ID
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-left">
+                Nombre
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-left">
+                Categoría
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-right">
+                Precio
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-center">
+                Imagen
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-left">
+                Descripción
+              </th>
+              <th scope="col" class="p-3 border border-gray-300 text-center">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody id="productos-body" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </section>
 
-      <form
-        id="form-producto"
-        class="bg-white p-6 rounded shadow-md max-w-xl mx-auto space-y-4"
+      <section
+        class="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto mb-12"
       >
-        <h2 id="form-title" class="text-xl font-semibold">Agregar Producto</h2>
-        <input type="hidden" id="prod-id" />
-        <input type="text" id="prod-nombre" placeholder="Nombre" class="w-full p-2 border border-gray-300 rounded" required />
-        <input type="text" id="prod-categoria" placeholder="Categoría" class="w-full p-2 border border-gray-300 rounded" required />
-        <input type="number" id="prod-precio" placeholder="Precio" step="0.01" min="0" class="w-full p-2 border border-gray-300 rounded" required />
-        <input type="text" id="prod-imagen" placeholder="URL imagen (opcional)" class="w-full p-2 border border-gray-300 rounded" />
-        <textarea id="prod-description" placeholder="Descripción (opcional)" class="w-full p-2 border border-gray-300 rounded" rows="3"></textarea>
+        <h2 id="form-title" class="text-2xl font-semibold mb-6 text-gray-900">
+          Agregar Producto
+        </h2>
 
-        <div class="flex justify-between">
-          <button type="submit" id="submit-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
-          <button type="button" id="cancel-btn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 hidden">Cancelar</button>
-        </div>
-      </form>
-    </div>
+        <form id="form-producto" class="space-y-6" novalidate>
+          <input type="hidden" id="prod-id" />
+
+          <div>
+            <label
+              for="prod-nombre"
+              class="block mb-2 font-medium text-gray-700"
+              >Nombre *</label
+            >
+            <input
+              type="text"
+              id="prod-nombre"
+              name="nombre"
+              placeholder="Nombre del producto"
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="prod-categoria"
+              class="block mb-2 font-medium text-gray-700"
+              >Categoría *</label
+            >
+            <select
+              id="prod-categoria"
+              name="categoria_id"
+              class="w-full rounded-md border border-gray-300 px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+              aria-describedby="categoriaHelp"
+            >
+              <option value="" disabled selected
+                >Seleccione una categoría</option
+              >
+              <!-- Se llenan dinámicamente -->
+            </select>
+            <p id="categoriaHelp" class="text-xs text-gray-500 mt-1">
+              Las categorías se obtienen del sistema.
+            </p>
+          </div>
+
+          <div>
+            <label
+              for="prod-precio"
+              class="block mb-2 font-medium text-gray-700"
+              >Precio (MXN) *</label
+            >
+            <input
+              type="number"
+              id="prod-precio"
+              name="precio"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              for="prod-imagen"
+              class="block mb-2 font-medium text-gray-700"
+              >URL o ruta de imagen</label
+            >
+            <input
+              type="text"
+              id="prod-imagen"
+              name="imagen"
+              placeholder="https://ejemplo.com/imagen.jpg o /imagenes/miimagen.jpg"
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              pattern="^((https?:\\/\\/).+|\\/.*|\\.\\/.*|[^\\s]+)$"
+            />
+          </div>
+
+          <div>
+            <label
+              for="prod-description"
+              class="block mb-2 font-medium text-gray-700"
+              >Descripción</label
+            >
+            <textarea
+              id="prod-description"
+              name="description"
+              rows="4"
+              placeholder="Descripción detallada del producto"
+              class="w-full rounded-md border border-gray-300 px-4 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end space-x-4">
+            <button
+              type="button"
+              id="cancel-btn"
+              class="hidden px-5 py-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              id="submit-btn"
+              class="px-6 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
 
     <script type="module">
       const API_URL = '/api/admin/productos';
+      const API_CATEGORIAS = '/api/admin/categorias';
 
       const errorMsg = document.getElementById('error-msg');
       const logMsg = document.getElementById('log-msg');
@@ -77,49 +203,134 @@
       const inputDescription = document.getElementById('prod-description');
 
       let productos = [];
+      let categorias = [];
       let modoEdicion = false;
 
       function getToken() {
         const token = localStorage.getItem('token');
+        console.log('[LOG] Obteniendo token desde localStorage:', token);
         if (!token) {
           alert('No autorizado. Por favor inicia sesión.');
-          throw new Error('No autorizado');
+          throw new Error('No autorizado: token no encontrado en localStorage');
         }
         return token;
       }
 
       function mostrarError(msg) {
+        console.error('[ERROR]', msg);
         errorMsg.textContent = msg;
-        setTimeout(() => (errorMsg.textContent = ''), 5000);
+        errorMsg.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          errorMsg.classList.add('hidden');
+          errorMsg.textContent = '';
+        }, 10000);
       }
 
       function mostrarLog(msg) {
+        console.log('[LOG]', msg);
         logMsg.textContent = msg;
-        setTimeout(() => (logMsg.textContent = ''), 5000);
+        logMsg.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          logMsg.classList.add('hidden');
+          logMsg.textContent = '';
+        }, 10000);
+      }
+
+      // Escapa texto para evitar inyección HTML
+      function escapeHtml(text) {
+        if (!text) return '';
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      async function cargarCategorias() {
+        mostrarLog('Iniciando carga de categorías...');
+        console.group('cargarCategorias');
+
+        try {
+          const token = getToken();
+          console.log('[DEBUG] Token para cargar categorías:', token);
+
+          const res = await fetch(API_CATEGORIAS, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          });
+          console.log('[DEBUG] Respuesta fetch categorías:', res);
+
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status} al cargar categorías: ${text}`);
+          }
+
+          const data = await res.json();
+          console.log('[DEBUG] Datos recibidos categorías:', data);
+
+          categorias = data.categorias || [];
+          if (categorias.length === 0) {
+            mostrarError('No se encontraron categorías en la respuesta.');
+          } else {
+            mostrarLog(`Categorías cargadas: ${categorias.length}`);
+          }
+
+          inputCategoria.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
+          categorias.forEach((cat) => {
+            console.log(`[DEBUG] Agregando categoría: id=${cat.id}, nombre=${cat.nombre}`);
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.nombre;
+            inputCategoria.appendChild(option);
+          });
+        } catch (e) {
+          mostrarError(`Error al cargar categorías: ${e.message}`);
+          inputCategoria.innerHTML = '<option value="" disabled selected>Error al cargar categorías</option>';
+          console.error('[ERROR] cargarCategorias:', e);
+        }
+        console.groupEnd();
       }
 
       function renderProductos() {
+        console.log('[LOG] Renderizando productos:', productos);
         productosBody.innerHTML = '';
         if (productos.length === 0) {
-          productosBody.innerHTML = '<tr><td colspan="7" class="text-center p-2">No hay productos</td></tr>';
+          productosBody.innerHTML =
+            '<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay productos registrados</td></tr>';
           return;
         }
 
         productos.forEach((p) => {
           const tr = document.createElement('tr');
-          tr.classList.add('border-b');
+          tr.classList.add('hover:bg-gray-50', 'transition-colors', 'duration-150');
           tr.innerHTML = `
-            <td class="p-2 border">${p.id}</td>
-            <td class="p-2 border">${p.nombre}</td>
-            <td class="p-2 border">${p.categoria}</td>
-            <td class="p-2 border">$${Number(p.precio).toFixed(2)}</td>
-            <td class="p-2 border text-center">
-              ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}" class="mx-auto max-h-20 rounded" />` : 'Sin imagen'}
+            <td class="p-3 border border-gray-200">${p.id}</td>
+            <td class="p-3 border border-gray-200 font-medium">${escapeHtml(p.nombre)}</td>
+            <td class="p-3 border border-gray-200">${escapeHtml(p.categoria || 'N/A')}</td>
+            <td class="p-3 border border-gray-200 text-right font-mono text-indigo-600">$${Number(p.precio).toFixed(2)}</td>
+            <td class="p-3 border border-gray-200 text-center">
+              ${
+                p.imagen
+                  ? `<img src="${escapeHtml(p.imagen)}" alt="Imagen de ${escapeHtml(p.nombre)}" class="inline-block max-h-16 rounded-md object-contain" loading="lazy" />`
+                  : '<span class="text-gray-400 italic">Sin imagen</span>'
+              }
             </td>
-            <td class="p-2 border">${p.description || ''}</td>
-            <td class="p-2 border text-center">
-              <button class="text-blue-600 hover:underline editar-prod" data-id="${p.id}">Editar</button>
-              <button class="text-red-600 hover:underline ml-2 eliminar-prod" data-id="${p.id}">Eliminar</button>
+            <td class="p-3 border border-gray-200">${escapeHtml(p.description || '')}</td>
+            <td class="p-3 border border-gray-200 text-center space-x-3">
+              <button
+                class="editar-prod text-indigo-600 hover:text-indigo-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600 rounded"
+                aria-label="Editar producto ${escapeHtml(p.nombre)}"
+                data-id="${p.id}"
+              >Editar</button>
+              <button
+                class="eliminar-prod text-red-600 hover:text-red-900 font-semibold focus:outline-none focus:ring-2 focus:ring-red-600 rounded"
+                aria-label="Eliminar producto ${escapeHtml(p.nombre)}"
+                data-id="${p.id}"
+              >Eliminar</button>
             </td>
           `;
           productosBody.appendChild(tr);
@@ -132,28 +343,43 @@
         document.querySelectorAll('.eliminar-prod').forEach((btn) => {
           btn.onclick = async (e) => {
             const id = e.target.dataset.id;
-            if (confirm('¿Eliminar producto?')) await eliminarProducto(id);
+            if (confirm('¿Eliminar producto? Esta acción no se puede deshacer.')) await eliminarProducto(id);
           };
         });
       }
 
       async function cargarProductos() {
+        mostrarLog('Iniciando carga de productos...');
         try {
+          const token = getToken();
+          console.log('[DEBUG] Token para cargar productos:', token);
+
           const res = await fetch(API_URL, {
             headers: {
-              Authorization: 'Bearer ' + getToken(),
+              Authorization: 'Bearer ' + token,
             },
           });
-          if (!res.ok) throw new Error('Error al cargar productos');
+          console.log('[DEBUG] Respuesta fetch productos:', res);
+
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status} al cargar productos: ${text}`);
+          }
+
           const data = await res.json();
+          console.log('[DEBUG] Datos recibidos productos:', data);
+
           productos = data.productos || [];
           renderProductos();
+          mostrarLog(`Productos cargados: ${productos.length}`);
         } catch (e) {
-          mostrarError(e.message);
+          mostrarError(`Error al cargar productos: ${e.message}`);
+          console.error('[ERROR] cargarProductos:', e);
         }
       }
 
       function limpiarFormulario() {
+        console.log('[LOG] Limpiando formulario...');
         inputId.value = '';
         inputNombre.value = '';
         inputCategoria.value = '';
@@ -163,36 +389,49 @@
         modoEdicion = false;
         formTitle.textContent = 'Agregar Producto';
         cancelBtn.classList.add('hidden');
+        submitBtn.textContent = 'Guardar';
       }
 
       function comenzarEdicion(id) {
+        console.log('[LOG] Comenzando edición del producto ID:', id);
         const p = productos.find((prod) => prod.id == id);
         if (!p) {
           mostrarError('Producto no encontrado');
+          console.error('[ERROR] Producto no encontrado para editar, id:', id);
           return;
         }
         inputId.value = p.id;
         inputNombre.value = p.nombre;
-        inputCategoria.value = p.categoria;
+        inputCategoria.value = p.categoria_id || '';
         inputPrecio.value = p.precio;
         inputImagen.value = p.imagen || '';
         inputDescription.value = p.description || '';
         modoEdicion = true;
         formTitle.textContent = `Editar Producto (ID: ${p.id})`;
         cancelBtn.classList.remove('hidden');
+        submitBtn.textContent = 'Actualizar';
       }
 
-      cancelBtn.addEventListener('click', limpiarFormulario);
+      cancelBtn.addEventListener('click', () => {
+        console.log('[LOG] Cancelando edición...');
+        limpiarFormulario();
+      });
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        if (!form.checkValidity()) {
+          mostrarError('Por favor completa todos los campos obligatorios correctamente.');
+          form.reportValidity();
+          return;
+        }
+
         const producto = {
           nombre: inputNombre.value.trim(),
-          categoria: inputCategoria.value.trim(),
+          categoria_id: inputCategoria.value,
           precio: Number(inputPrecio.value),
           imagen: inputImagen.value.trim(),
-          description: inputDescription.value.trim()
+          description: inputDescription.value.trim(),
         };
 
         const token = getToken();
@@ -205,12 +444,14 @@
           let res;
           if (modoEdicion) {
             const id = inputId.value;
+            console.log('[LOG] Actualizando producto ID:', id, producto);
             res = await fetch(`${API_URL}/${id}`, {
               method: 'PUT',
               headers,
               body: JSON.stringify({ id, ...producto }),
             });
           } else {
+            console.log('[LOG] Agregando producto nuevo:', producto);
             res = await fetch(API_URL, {
               method: 'POST',
               headers,
@@ -223,29 +464,36 @@
             throw new Error(err.error || 'Error en la API');
           }
 
+          mostrarLog('Producto guardado correctamente.');
           limpiarFormulario();
           await cargarProductos();
-          mostrarLog('Operación exitosa');
         } catch (e) {
-          mostrarError(e.message);
+          mostrarError(`Error al guardar producto: ${e.message}`);
         }
       });
 
       async function eliminarProducto(id) {
         try {
+          console.log('[LOG] Eliminando producto ID:', id);
           const res = await fetch(`${API_URL}/${id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${getToken()}`,
             },
           });
-          if (!res.ok) throw new Error('No se pudo eliminar');
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status} al eliminar producto: ${text}`);
+          }
+          mostrarLog('Producto eliminado correctamente.');
           await cargarProductos();
         } catch (e) {
-          mostrarError(e.message);
+          mostrarError(`Error al eliminar producto: ${e.message}`);
         }
       }
 
+      // Carga inicial
+      cargarCategorias();
       cargarProductos();
     </script>
   </body>
