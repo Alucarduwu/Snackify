@@ -1,51 +1,52 @@
 ---
 import userData from '../utils/userData';
-import type {User} from '../utils/userData';
+import type { User } from '../utils/userData';
 import UserOption from './UserOption.astro';
 
-interface Props{
-    user?:User
+interface Props {
+  user?: User;
 }
-const {user=userData}= Astro.props
+const { user = userData } = Astro.props;
 ---
 
-<section class=" flex flex-col w-full h-screen sm:flex-row items-center justify-evenly py-2 ">
-    <div class="h-[400px] w-full flex flex-col items-center p-6 sm:w-[50%] rounded-2xl sm:h-[80%] bg-black/50">
-        <h2 class="text-3xl font-bold text-white my-2">Tus Productos</h2>
-        <div id="cart-container" class="w-full h-full flex flex-col overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"></div>
+<section class="flex flex-col w-full h-screen sm:flex-row items-center justify-evenly py-2">
+  <div class="h-[400px] w-full flex flex-col items-center p-6 sm:w-[50%] rounded-2xl sm:h-[80%] bg-black/50">
+    <h2 class="text-3xl font-bold text-white my-2">Tus Productos</h2>
+    <div id="cart-container" class="w-full h-full flex flex-col overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none]"></div>
+  </div>
+
+  <div class="h-[450px] w-full flex flex-col items-center sm:w-[40%] bg-black/50 rounded-2xl p-4">
+    <div class="w-[80%] h-[50px] flex justify-center items-center"> 
+      <h2 class="text-3xl font-bold text-white">Datos de la compra</h2>
     </div>
-    <div class="h-[450px] w-full flex flex-col items-center sm:w-[40%]  bg-black/50 rounded-2xl p-4">
-        <div class="w-[80%] h-[50px] flex justify-center items-center"> 
-            <h2 class="text-3xl font-bold text-white">Datos de la compra</h2>
-        </div>
-        <div class="w-[90%] h-[250px] text-white">
-            <ul class="text-xl font-medium p-4">
-                <li class="my-[5px]">Nombre: <span id="nombre-usuario" class="font-normal text-lg">{user.name}</span></li>
-                
-                <li class="my-[5px]">
-                  Dirección: 
-                  <select id="select-direccion" class="bg-transparent border border-white rounded p-1 text-white w-full max-w-md">
-                    <option>Cargando direcciones...</option>
-                  </select>
-                </li>
-                
-                <li class="my-[5px]">Correo de contacto: <span id="correo-usuario" class="font-normal text-lg">{user.email}</span></li>
-                
-                <li class="my-[5px]">
-                  Tarjeta: 
-                  <select id="select-tarjeta" class="bg-transparent border border-white rounded p-1 text-white w-full max-w-md">
-                    <option>Cargando métodos de pago...</option>
-                  </select>
-                </li>
-                
-                <li class="my-[5px]">Total de la compra: <span id="total-price" class="font-normal text-lg"></span></li>
-            </ul>
-        </div>
-        <div class="w-[80%] h-[50px] flex justify-between items-center"> 
-            <button id="empty-cart-btn" class=" border border-red-600 bg-red-600 text-white p-2 hover:bg-red-900 hover:border-red-900">Vaciar Carrito</button>
-            <button id="buy" class="border border-green-600 bg-green-600 text-white p-2 hover:bg-green-900 hover:border-green-900">Comprar</button>
-        </div>
+    <div class="w-[90%] h-[250px] text-white">
+      <ul class="text-xl font-medium p-4">
+        <li class="my-[5px]">Nombre: <span id="nombre-usuario" class="font-normal text-lg">{user.name}</span></li>
+
+        <li class="my-[5px]">
+          Dirección: 
+          <select id="select-direccion" class="bg-transparent border border-white rounded p-1 text-white w-full max-w-md">
+            <option>Cargando direcciones...</option>
+          </select>
+        </li>
+
+        <li class="my-[5px]">Correo de contacto: <span id="correo-usuario" class="font-normal text-lg">{user.email}</span></li>
+
+        <li class="my-[5px]">
+          Tarjeta: 
+          <select id="select-tarjeta" class="bg-transparent border border-white rounded p-1 text-white w-full max-w-md">
+            <option>Cargando métodos de pago...</option>
+          </select>
+        </li>
+
+        <li class="my-[5px]">Total de la compra: <span id="total-price" class="font-normal text-lg"></span></li>
+      </ul>
     </div>
+    <div class="w-[80%] h-[50px] flex justify-between items-center"> 
+      <button id="empty-cart-btn" class="border border-red-600 bg-red-600 text-white p-2 hover:bg-red-900 hover:border-red-900">Vaciar Carrito</button>
+      <button id="buy" class="border border-green-600 bg-green-600 text-white p-2 hover:bg-green-900 hover:border-green-900">Comprar</button>
+    </div>
+  </div>
 </section>
 
 <script>
@@ -56,175 +57,155 @@ const buy = document.getElementById("buy");
 const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 if (cart.length === 0) {
-    cartContainer.innerHTML = `
+  cartContainer.innerHTML = `
     <div class="flex flex-col flex-1 items-center justify-center h-full">
-        <p class="text-5xl font-bold text-white text-center my-3.5">El carrito está vacío.</p>
-        <p class="text-3xl font-bold text-white text-center">Elige algun producto para proseguir.</p>
-    </div>
-`;
-    emptyCartBtn.style.display = "none"; 
-    buy.style.display="none";
-
+      <p class="text-5xl font-bold text-white text-center my-3.5">El carrito está vacío.</p>
+      <p class="text-3xl font-bold text-white text-center">Elige algún producto para proseguir.</p>
+    </div>`;
+  emptyCartBtn.style.display = "none"; 
+  buy.style.display = "none";
 } else {
+  cart.forEach(product => {
+    const productDiv = document.createElement("div");
+    productDiv.classList.add("w-full", "h-auto", "flex", "items-center", "gap-4", "bg-[#282424]", "p-2", "rounded-xl", "shadow-md", "mb-4", "border", "[border-color:#444]", "text-white");
+
+    const imageDiv = document.createElement("div");
+    imageDiv.classList.add("w-24", "flex-shrink-0");
+    const img = document.createElement("img");
+    img.src = product.image;
+    img.alt = product.name;
+    img.classList.add("w-full", "rounded-md");
+    imageDiv.appendChild(img);
+
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("flex", "flex-col");
+    const name = document.createElement("p");
+    name.textContent = `Nombre: ${product.name}`;
+    name.classList.add("font-semibold");
+    const category = document.createElement("p");
+    category.textContent = `Categoría: ${product.category}`;
+    const price = document.createElement("p");
+    price.textContent = `Precio: $${product.price}`;
+    const quantity = document.createElement("p");
+    quantity.textContent = `Cantidad: ${product.quantity}`;
+    infoDiv.appendChild(name);
+    infoDiv.appendChild(category);
+    infoDiv.appendChild(price);
+    infoDiv.appendChild(quantity);
+
+    productDiv.appendChild(imageDiv);
+    productDiv.appendChild(infoDiv);
+    cartContainer.appendChild(productDiv);
+  });
+
+  let totalPrice = document.getElementById('total-price');
+  if (cart.length > 0) {
+    let total = 0;
     cart.forEach(product => {
-        const productDiv = document.createElement("div");
-        productDiv.classList.add("w-full", "h-auto", "flex", "items-center", "gap-4", "bg-[#282424]", "p-2", "rounded-xl", "shadow-md", "mb-4", "border", "[border-color:#444]", "text-white");
-
-        const imageDiv = document.createElement("div");
-        imageDiv.classList.add("w-24", "flex-shrink-0");
-        const img = document.createElement("img");
-        img.src = product.image;
-        img.alt = product.name;
-        img.classList.add("w-full", "rounded-md");
-        imageDiv.appendChild(img);
-
-        const infoDiv = document.createElement("div");
-        infoDiv.classList.add("flex", "flex-col");
-        const name = document.createElement("p");
-        name.textContent = `Nombre: ${product.name}`;
-        name.classList.add("font-semibold");
-        const category = document.createElement("p");
-        category.textContent = `Categoría: ${product.category}`;
-        const price = document.createElement("p");
-        price.textContent = `Precio: $${product.price}`;
-        const quantity = document.createElement("p");
-        quantity.textContent = `Cantidad: ${product.quantity}`;
-        infoDiv.appendChild(name);
-        infoDiv.appendChild(category);
-        infoDiv.appendChild(price);
-        infoDiv.appendChild(quantity);
-
-        productDiv.appendChild(imageDiv);
-        productDiv.appendChild(infoDiv);
-        cartContainer.appendChild(productDiv);
+      total += product.price * product.quantity;
     });
-
-    let totalPrice = document.getElementById('total-price');
-    if(cart.length > 0){
-        let total = 0;
-        cart.forEach(product => {
-            total += product.price * product.quantity;
-        });
-        if(totalPrice){
-            totalPrice.textContent = `${total.toFixed(2)}`;
-        }
+    if (totalPrice) {
+      totalPrice.textContent = `${total.toFixed(2)}`;
     }
+  }
 }
 
 const emptyCart = () => {
-    localStorage.removeItem("cart");
-    cartContainer.innerHTML = `
+  localStorage.removeItem("cart");
+  cartContainer.innerHTML = `
     <div class="flex flex-col flex-1 items-center justify-center h-full">
-        <p class="text-5xl font-bold text-white text-center my-3.5">El carrito está vacío.</p>
-        <p class="text-3xl font-bold text-white text-center">Elige algun producto para proseguir.</p>
-    </div>
-    `;
-    buy.style.display = "none";
-    emptyCartBtn.style.display = "none";
+      <p class="text-5xl font-bold text-white text-center my-3.5">El carrito está vacío.</p>
+      <p class="text-3xl font-bold text-white text-center">Elige algún producto para proseguir.</p>
+    </div>`;
+  buy.style.display = "none";
+  emptyCartBtn.style.display = "none";
 
-    const totalPrice = document.getElementById('total-price');
-    if(totalPrice) {
-        totalPrice.textContent = "0.00";
-    }
+  const totalPrice = document.getElementById('total-price');
+  if (totalPrice) {
+    totalPrice.textContent = "0.00";
+  }
 };
 
 emptyCartBtn.addEventListener("click", emptyCart);
 
-buy.addEventListener('click', async () => {
-    const token = localStorage.getItem('token');
-    const direccionSelect = document.getElementById("select-direccion");
-    const tarjetaSelect = document.getElementById("select-tarjeta");
+buy.addEventListener("click", async () => {
+  const token = localStorage.getItem("token");
+  const direccionSelect = document.getElementById("select-direccion");
+  const tarjetaSelect = document.getElementById("select-tarjeta");
 
-    const direccionId = direccionSelect?.value;
-    const metodoPagoId = tarjetaSelect?.value;
+  const direccionId = direccionSelect?.value;
+  const metodoPagoId = tarjetaSelect?.value;
 
-    if (!token || !direccionId || !metodoPagoId || cart.length === 0) {
-        alert('Faltan datos para completar la compra');
-        return;
-    }
-
-    try {
-        const res = await fetch('/api/orders', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                direccionId,
-                metodoPagoId,
-                productos: cart.map(p => ({
-                    producto_id: p.id,
-                    cantidad: p.quantity
-                })),
-                estado: 'pendiente' // también lo espera tu backend
-            })
-        });
-
-        if (!res.ok) {
-            throw new Error('Error al guardar la compra');
-        }
-
-        alert('Compra exitosa');
-        localStorage.removeItem("cart");
-        cartContainer.innerHTML = `
-        <div class="flex flex-col flex-1 items-center justify-center h-full">
-            <p class="text-5xl font-bold text-white text-center my-3.5">El carrito está vacío.</p>
-            <p class="text-3xl font-bold text-white text-center">Elige algun producto para proseguir.</p>
-        </div>`;
-        buy.style.display = "none";
-        emptyCartBtn.style.display = "none";
-
-        const totalPrice = document.getElementById('total-price');
-        if(totalPrice) {
-            totalPrice.textContent = "0.00";
-        }
-
-        window.location.href = '/orders';
-
-    } catch (e) {
-        console.error(e);
-        alert('Error al guardar la compra');
-    }
-});
-
-
-async function cargarUsuario() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('No estás autenticado');
+  if (!token || !direccionId || !metodoPagoId || cart.length === 0) {
+    alert("Faltan datos para completar la compra");
     return;
   }
 
   try {
-    const res = await fetch('/api/me', {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        direccionId,
+        metodoPagoId,
+        productos: cart.map((p) => ({
+          producto_id: p.id,
+          cantidad: p.quantity,
+        })),
+        estado: "pendiente",
+      }),
+    });
+
+    if (!res.ok) throw new Error("Error al guardar la compra");
+
+    alert("Compra exitosa");
+    localStorage.removeItem("cart");
+    emptyCart();
+
+    window.location.href = "/orders";
+  } catch (e) {
+    console.error(e);
+    alert("Error al guardar la compra");
+  }
+});
+
+async function cargarUsuario() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("No estás autenticado");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    if (!res.ok) {
-      throw new Error('Error al obtener datos de usuario');
-    }
+    if (!res.ok) throw new Error("Error al obtener datos de usuario");
 
     const { user } = await res.json();
 
-    const nombreSpan = document.getElementById('nombre-usuario');
-    if (nombreSpan) nombreSpan.textContent = user.username || '';
+    const nombreSpan = document.getElementById("nombre-usuario");
+    if (nombreSpan) nombreSpan.textContent = user.username || "";
 
-    const correoSpan = document.getElementById('correo-usuario');
-    if (correoSpan) correoSpan.textContent = user.email || '';
+    const correoSpan = document.getElementById("correo-usuario");
+    if (correoSpan) correoSpan.textContent = user.email || "";
 
-    const selectDir = document.getElementById('select-direccion');
-    const selectTarj = document.getElementById('select-tarjeta');
+    const selectDir = document.getElementById("select-direccion");
+    const selectTarj = document.getElementById("select-tarjeta");
 
     if (selectDir) {
-      selectDir.innerHTML = '';
+      selectDir.innerHTML = "";
       if ((user.direcciones ?? []).length === 0) {
         selectDir.innerHTML = `<option disabled>No tienes direcciones guardadas</option>`;
       } else {
-        user.direcciones.forEach(dir => {
-          const option = document.createElement('option');
+        user.direcciones.forEach((dir) => {
+          const option = document.createElement("option");
           option.value = dir.id;
           option.textContent = `${dir.calle}, ${dir.ciudad}, ${dir.estado}, ${dir.codigo_postal}, ${dir.pais}`;
           selectDir.appendChild(option);
@@ -233,26 +214,25 @@ async function cargarUsuario() {
     }
 
     if (selectTarj) {
-      selectTarj.innerHTML = '';
+      selectTarj.innerHTML = "";
       if ((user.metodos_pago ?? []).length === 0) {
         selectTarj.innerHTML = `<option disabled>No tienes métodos de pago guardados</option>`;
       } else {
-        user.metodos_pago.forEach(tarj => {
-          const option = document.createElement('option');
+        user.metodos_pago.forEach((tarj) => {
+          const option = document.createElement("option");
           option.value = tarj.id;
-          option.textContent = `${tarj.tipo} - **** **** **** ${tarj.numero.slice(-4)}`;
+          option.textContent = `${tarj.tipo} - **** **** **** ${tarj.ultimos4}`;
           selectTarj.appendChild(option);
         });
       }
     }
-
   } catch (e) {
     console.error(e);
-    alert('Error cargando datos de usuario');
+    alert("Error cargando datos de usuario");
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   cargarUsuario();
 });
 </script>
