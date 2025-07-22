@@ -1,0 +1,551 @@
+---
+import '../../styles/global.css';
+
+const API_ALMACENES = '/api/admin/almacenes';
+const API_STOCK = '/api/admin/stock';
+const API_PRODUCTOS = '/api/admin/productos';
+
+type Almacen = {
+  id: number;
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  creado_en: string;
+};
+
+type Producto = {
+  id: number;
+  nombre: string;
+};
+
+type Stock = {
+  id: number;
+  producto_id: number;
+  almacen_id: number;
+  cantidad: number;
+  fecha_actualizacion: string;
+  producto_nombre: string;
+  almacen_nombre: string;
+};
+---
+
+<html lang="es" class="min-h-screen bg-gray-100 p-6">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administración de Almacenes y Stock</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body class="text-gray-900">
+
+  <h1 class="text-4xl font-bold mb-6 text-center">Administración de Almacenes y Stock</h1>
+
+  <div id="error" class="text-red-600 mb-4 text-center"></div>
+
+  <section>
+    <h2 class="text-2xl font-semibold mb-2">Almacenes</h2>
+    <button id="btnNuevoAlmacen" class="mb-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+      + Nuevo Almacén
+    </button>
+    <table class="w-full border-collapse border border-gray-300 mb-8 text-left">
+      <thead class="bg-indigo-600 text-white">
+        <tr>
+          <th class="border border-gray-300 p-2">Nombre</th>
+          <th class="border border-gray-300 p-2">Dirección</th>
+          <th class="border border-gray-300 p-2">Teléfono</th>
+          <th class="border border-gray-300 p-2">Creado En</th>
+          <th class="border border-gray-300 p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyAlmacenes">
+        <tr><td colspan="5" class="p-4 text-center text-gray-500">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 class="text-2xl font-semibold mb-2">Stock de Productos</h2>
+    <button id="btnNuevoStock" class="mb-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+      + Agregar Stock
+    </button>
+    <table class="w-full border-collapse border border-gray-300 text-left">
+      <thead class="bg-indigo-600 text-white">
+        <tr>
+          <th class="border border-gray-300 p-2">Producto</th>
+          <th class="border border-gray-300 p-2">Almacén</th>
+          <th class="border border-gray-300 p-2">Cantidad</th>
+          <th class="border border-gray-300 p-2">Fecha Actualización</th>
+          <th class="border border-gray-300 p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyStock">
+        <tr><td colspan="5" class="p-4 text-center text-gray-500">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Modal Almacén -->
+  <div id="modalAlmacen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <form id="formAlmacen" class="bg-white rounded-lg p-6 max-w-lg w-full space-y-4 shadow-lg">
+      <h3 id="titleAlmacen" class="text-xl font-semibold">Nuevo Almacén</h3>
+      <input type="hidden" name="id" />
+      <label class="block">
+        <span>Nombre:</span>
+        <input type="text" name="nombre" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+      </label>
+      <label class="block">
+        <span>Dirección:</span>
+        <input type="text" name="direccion" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+      </label>
+      <label class="block">
+        <span>Teléfono:</span>
+        <input type="tel" name="telefono" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+      </label>
+      <div class="flex justify-end space-x-4 mt-4">
+        <button type="button" id="btnCerrarAlmacen" class="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500">Cancelar</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal Stock -->
+  <div id="modalStock" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-auto">
+    <form id="formStock" class="bg-white rounded-lg p-6 max-w-lg w-full space-y-4 shadow-lg">
+      <h3 id="titleStock" class="text-xl font-semibold mb-4">Agregar Stock</h3>
+      <input type="hidden" name="id" />
+      <label class="block">
+        <span>Producto:</span>
+        <select name="producto_id" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" id="selectProducto">
+          <option value="" disabled selected>-- Selecciona un producto --</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span>Almacén:</span>
+        <select name="almacen_id" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" id="selectAlmacen">
+          <option value="" disabled selected>-- Selecciona un almacén --</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span>Cantidad:</span>
+        <input
+          type="number"
+          min="0"
+          name="cantidad"
+          required
+          class="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+        />
+      </label>
+
+      <div class="flex justify-end space-x-4 mt-4">
+        <button type="button" id="btnCerrarStock" class="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500">Cancelar</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module">
+  console.log('Script iniciado');
+
+  const API_ALMACENES = '/api/admin/almacenes';
+  const API_STOCK = '/api/admin/stock';
+  const API_PRODUCTOS = '/api/admin/productos';
+
+  function getToken() {
+    const token = localStorage.getItem('token') || '';
+    console.log('Token obtenido:', token);
+    return token;
+  }
+
+  const errorDiv = document.getElementById('error');
+  const tbodyAlmacenes = document.getElementById('tbodyAlmacenes');
+  const tbodyStock = document.getElementById('tbodyStock');
+  const btnNuevoAlmacen = document.getElementById('btnNuevoAlmacen');
+  const btnNuevoStock = document.getElementById('btnNuevoStock');
+
+  const modalAlmacen = document.getElementById('modalAlmacen');
+  const formAlmacen = document.getElementById('formAlmacen');
+  const titleAlmacen = document.getElementById('titleAlmacen');
+
+  const modalStock = document.getElementById('modalStock');
+  const formStock = document.getElementById('formStock');
+  const titleStock = document.getElementById('titleStock');
+  const selectProducto = document.getElementById('selectProducto');
+  const selectAlmacen = document.getElementById('selectAlmacen');
+
+  let almacenes = [];
+  let productos = [];
+  let stocks = [];
+
+  function showError(msg) {
+    console.log('Mostrar error:', msg);
+    if (!errorDiv) return;
+    errorDiv.textContent = msg;
+    setTimeout(() => {
+      console.log('Limpiando mensaje de error');
+      errorDiv.textContent = '';
+    }, 5000);
+  }
+
+  async function fetchAllData() {
+  console.log('fetchAllData iniciado');
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('No autorizado, token no encontrado');
+    }
+
+    console.log('Solicitando almacenes...');
+    const resAlmacenes = await fetch(API_ALMACENES, { headers: { Authorization: 'Bearer ' + token } });
+    if (!resAlmacenes.ok) throw new Error('Error cargando almacenes');
+
+    console.log('Solicitando productos...');
+    const resProductos = await fetch(API_PRODUCTOS, { headers: { Authorization: 'Bearer ' + token } });
+    if (!resProductos.ok) throw new Error('Error cargando productos');
+
+    console.log('Solicitando stock...');
+    const resStock = await fetch(API_STOCK, { headers: { Authorization: 'Bearer ' + token } });
+    if (!resStock.ok) throw new Error('Error cargando stock');
+
+    almacenes = await resAlmacenes.json();
+
+    const dataProductos = await resProductos.json();
+    if (Array.isArray(dataProductos)) {
+      productos = dataProductos;
+    } else if (dataProductos.productos) {
+      productos = dataProductos.productos;
+    } else {
+      productos = [];
+    }
+
+    const dataStocks = await resStock.json();
+    if (Array.isArray(dataStocks)) {
+      stocks = dataStocks;
+    } else if (dataStocks.stocks) {
+      stocks = dataStocks.stocks;
+    } else {
+      stocks = [];
+    }
+
+    console.log('Almacenes recibidos:', almacenes);
+    console.log('Productos recibidos:', productos);
+    console.log('Stock recibido:', stocks);
+
+    renderAlmacenes();
+    renderProductosSelect();
+    renderAlmacenesSelect();
+    renderStock();
+
+  } catch (e) {
+    console.error('Error en fetchAllData:', e);
+    showError(e.message || 'Error desconocido');
+  }
+}
+
+
+  function renderAlmacenes() {
+    console.log('Renderizando almacenes...');
+    if (!tbodyAlmacenes) return;
+    if (almacenes.length === 0) {
+      tbodyAlmacenes.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No hay almacenes.</td></tr>`;
+      console.log('No hay almacenes para mostrar');
+      return;
+    }
+    tbodyAlmacenes.innerHTML = almacenes.map(a => `
+      <tr class="hover:bg-gray-100 even:bg-gray-50">
+        <td class="border border-gray-300 p-2">${a.nombre}</td>
+        <td class="border border-gray-300 p-2">${a.direccion}</td>
+        <td class="border border-gray-300 p-2">${a.telefono}</td>
+        <td class="border border-gray-300 p-2">${new Date(a.creado_en).toLocaleString()}</td>
+        <td class="border border-gray-300 p-2 space-x-2">
+          <button class="bg-yellow-400 text-black px-2 py-1 rounded hover:bg-yellow-500" data-id="${a.id}" data-action="edit-almacen">Editar</button>
+          <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700" data-id="${a.id}" data-action="delete-almacen">Eliminar</button>
+        </td>
+      </tr>
+    `).join('');
+    console.log('Almacenes renderizados');
+  }
+
+  function renderProductosSelect() {
+    console.log('Renderizando select productos...');
+    if (!selectProducto) return;
+    selectProducto.innerHTML = `<option value="" disabled selected>-- Selecciona un producto --</option>` +
+      productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+    console.log('Select productos renderizado');
+  }
+
+  function renderAlmacenesSelect() {
+    console.log('Renderizando select almacenes...');
+    if (!selectAlmacen) return;
+    selectAlmacen.innerHTML = `<option value="" disabled selected>-- Selecciona un almacén --</option>` +
+      almacenes.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
+    console.log('Select almacenes renderizado');
+  }
+
+  function renderStock() {
+    console.log('Renderizando stock...');
+    if (!tbodyStock) return;
+    if (stocks.length === 0) {
+      tbodyStock.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No hay stock registrado.</td></tr>`;
+      console.log('No hay stock para mostrar');
+      return;
+    }
+    tbodyStock.innerHTML = stocks.map(s => `
+      <tr class="hover:bg-gray-100 even:bg-gray-50">
+        <td class="border border-gray-300 p-2">${s.producto_nombre}</td>
+        <td class="border border-gray-300 p-2">${s.almacen_nombre}</td>
+        <td class="border border-gray-300 p-2">${s.cantidad}</td>
+        <td class="border border-gray-300 p-2">${new Date(s.fecha_actualizacion).toLocaleString()}</td>
+        <td class="border border-gray-300 p-2 space-x-2">
+          <button class="bg-yellow-400 text-black px-2 py-1 rounded hover:bg-yellow-500" data-id="${s.id}" data-action="edit-stock">Editar</button>
+          <button class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700" data-id="${s.id}" data-action="delete-stock">Eliminar</button>
+        </td>
+      </tr>
+    `).join('');
+    console.log('Stock renderizado');
+  }
+
+  function openModalAlmacen(almacen) {
+    console.log('Abriendo modal almacén', almacen);
+    modalAlmacen.classList.remove('hidden');
+    if (almacen) {
+      titleAlmacen.textContent = 'Editar Almacén';
+      formAlmacen.elements.namedItem('id').value = almacen.id.toString();
+      formAlmacen.elements.namedItem('nombre').value = almacen.nombre;
+      formAlmacen.elements.namedItem('direccion').value = almacen.direccion;
+      formAlmacen.elements.namedItem('telefono').value = almacen.telefono;
+    } else {
+      titleAlmacen.textContent = 'Nuevo Almacén';
+      formAlmacen.reset();
+      formAlmacen.elements.namedItem('id').value = '';
+    }
+  }
+
+  function openModalStock(stock) {
+    console.log('Abriendo modal stock', stock);
+    modalStock.classList.remove('hidden');
+    if (stock) {
+      titleStock.textContent = 'Editar Stock';
+      formStock.elements.namedItem('id').value = stock.id.toString();
+      formStock.elements.namedItem('producto_id').value = stock.producto_id.toString();
+      formStock.elements.namedItem('almacen_id').value = stock.almacen_id.toString();
+      formStock.elements.namedItem('cantidad').value = stock.cantidad.toString();
+    } else {
+      titleStock.textContent = 'Agregar Stock';
+      formStock.reset();
+      formStock.elements.namedItem('id').value = '';
+    }
+  }
+
+  function closeModalAlmacen() {
+    console.log('Cerrando modal almacén');
+    modalAlmacen.classList.add('hidden');
+  }
+  function closeModalStock() {
+    console.log('Cerrando modal stock');
+    modalStock.classList.add('hidden');
+  }
+
+  formAlmacen.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Formulario almacén enviado');
+    const token = getToken();
+    if (!token) {
+      showError('No autorizado');
+      return;
+    }
+
+    const formData = new FormData(formAlmacen);
+    const id = formData.get('id');
+    const nombre = formData.get('nombre');
+    const direccion = formData.get('direccion');
+    const telefono = formData.get('telefono');
+
+    console.log('Datos del formulario almacén:', { id, nombre, direccion, telefono });
+
+    try {
+      const method = id ? 'PUT' : 'POST';
+      const url = API_ALMACENES + (id ? `/${id}` : '');
+      console.log(`Haciendo fetch ${method} a ${url}`);
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nombre, direccion, telefono }),
+      });
+
+      console.log('Respuesta del servidor:', res);
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.error('Error en respuesta:', data);
+        throw new Error(data.error || 'Error guardando almacén');
+      }
+
+      console.log('Almacén guardado correctamente, recargando datos');
+      await fetchAllData();
+      closeModalAlmacen();
+
+    } catch (err) {
+      console.error('Error guardando almacén:', err);
+      showError(err.message || 'Error desconocido');
+    }
+  });
+
+  formStock.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Formulario stock enviado');
+    const token = getToken();
+    if (!token) {
+      showError('No autorizado');
+      return;
+    }
+
+    const formData = new FormData(formStock);
+    const id = formData.get('id');
+    const producto_id = formData.get('producto_id');
+    const almacen_id = formData.get('almacen_id');
+    const cantidad = formData.get('cantidad');
+
+    console.log('Datos del formulario stock:', { id, producto_id, almacen_id, cantidad });
+
+    try {
+      const method = id ? 'PUT' : 'POST';
+      const url = API_STOCK + (id ? `/${id}` : '');
+      console.log(`Haciendo fetch ${method} a ${url}`);
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          producto_id: Number(producto_id), 
+          almacen_id: Number(almacen_id), 
+          cantidad: Number(cantidad) 
+        }),
+      });
+
+      console.log('Respuesta del servidor:', res);
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.error('Error en respuesta:', data);
+        throw new Error(data.error || 'Error guardando stock');
+      }
+
+      console.log('Stock guardado correctamente, recargando datos');
+      await fetchAllData();
+      closeModalStock();
+
+    } catch (err) {
+      console.error('Error guardando stock:', err);
+      showError(err.message || 'Error desconocido');
+    }
+  });
+
+  btnNuevoAlmacen.addEventListener('click', () => {
+    console.log('Click en nuevo almacén');
+    openModalAlmacen();
+  });
+
+  btnNuevoStock.addEventListener('click', () => {
+    console.log('Click en nuevo stock');
+    openModalStock();
+  });
+
+  document.getElementById('btnCerrarAlmacen').addEventListener('click', () => {
+    console.log('Click cerrar modal almacén');
+    closeModalAlmacen();
+  });
+
+  document.getElementById('btnCerrarStock').addEventListener('click', () => {
+    console.log('Click cerrar modal stock');
+    closeModalStock();
+  });
+
+  // Delegación click para editar/eliminar
+  document.body.addEventListener('click', async (e) => {
+    const target = e.target;
+    if (!target.dataset || !target.dataset.action || !target.dataset.id) return;
+    const id = Number(target.dataset.id);
+    const token = getToken();
+    if (!token) {
+      showError('No autorizado');
+      return;
+    }
+
+    console.log(`Acción: ${target.dataset.action} en id: ${id}`);
+
+    switch (target.dataset.action) {
+      case 'edit-almacen':
+        {
+          console.log('Editar almacén:', id);
+          const almacen = almacenes.find(a => a.id === id);
+          if (almacen) openModalAlmacen(almacen);
+          else console.warn('Almacén no encontrado para editar:', id);
+        }
+        break;
+      case 'delete-almacen':
+        {
+          if (!confirm('¿Seguro que quieres eliminar este almacén?')) {
+            console.log('Eliminación de almacén cancelada');
+            return;
+          }
+          try {
+            console.log('Eliminando almacén:', id);
+            const res = await fetch(API_ALMACENES + `/${id}`, {
+              method: 'DELETE',
+              headers: { Authorization: 'Bearer ' + token },
+            });
+            console.log('Respuesta eliminar almacén:', res);
+            if (!res.ok) throw new Error('Error eliminando almacén');
+            await fetchAllData();
+          } catch (err) {
+            console.error('Error eliminando almacén:', err);
+            showError(err.message || 'Error desconocido');
+          }
+        }
+        break;
+      case 'edit-stock':
+        {
+          console.log('Editar stock:', id);
+          const stock = stocks.find(s => s.id === id);
+          if (stock) openModalStock(stock);
+          else console.warn('Stock no encontrado para editar:', id);
+        }
+        break;
+      case 'delete-stock':
+        {
+          if (!confirm('¿Seguro que quieres eliminar este stock?')) {
+            console.log('Eliminación de stock cancelada');
+            return;
+          }
+          try {
+            console.log('Eliminando stock:', id);
+            const res = await fetch(API_STOCK + `/${id}`, {
+              method: 'DELETE',
+              headers: { Authorization: 'Bearer ' + token },
+            });
+            console.log('Respuesta eliminar stock:', res);
+            if (!res.ok) throw new Error('Error eliminando stock');
+            await fetchAllData();
+          } catch (err) {
+            console.error('Error eliminando stock:', err);
+            showError(err.message || 'Error desconocido');
+          }
+        }
+        break;
+    }
+  });
+
+  // Inicializa la carga de datos
+  fetchAllData();
+</script>
+
+</body>
+</html>
