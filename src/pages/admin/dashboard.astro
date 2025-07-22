@@ -13,12 +13,7 @@ const cookies = parse(cookieHeader);
 const user_id = cookies.user_id;
 const rol = cookies.rol;
 
-if (!user_id || rol !== "admin") {
-  return new Response(null, {
-    status: 302,
-    headers: { Location: "/" }
-  });
-}
+
 
 const usuario = { nombre: "Admin Demo" };
 ---

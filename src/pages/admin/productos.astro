@@ -1,0 +1,252 @@
+---
+---
+
+<html lang="es" class="bg-gray-100 min-h-screen p-6">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Productos CRUD</title>
+    <!-- ✅ Tailwind CSS sin CORS -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.tailwindcss.com';
+        document.head.appendChild(s);
+      });
+    </script>
+  </head>
+  <body>
+    <h1 class="text-center text-3xl font-bold mb-6">Administrar Productos</h1>
+
+    <div id="error-msg" class="text-red-600 text-center mb-4"></div>
+    <div id="log-msg" class="text-green-700 text-center mb-4"></div>
+
+    <div class="max-w-5xl mx-auto">
+      <table
+        id="productos-table"
+        class="min-w-full bg-white rounded shadow mb-6 text-sm border border-gray-300"
+      >
+        <thead class="bg-gray-200 text-gray-800">
+          <tr>
+            <th class="p-2 border">ID</th>
+            <th class="p-2 border">Nombre</th>
+            <th class="p-2 border">Categoría</th>
+            <th class="p-2 border">Precio</th>
+            <th class="p-2 border">Imagen</th>
+            <th class="p-2 border">Descripción</th>
+            <th class="p-2 border">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="productos-body"></tbody>
+      </table>
+
+      <form
+        id="form-producto"
+        class="bg-white p-6 rounded shadow-md max-w-xl mx-auto space-y-4"
+      >
+        <h2 id="form-title" class="text-xl font-semibold">Agregar Producto</h2>
+        <input type="hidden" id="prod-id" />
+        <input type="text" id="prod-nombre" placeholder="Nombre" class="w-full p-2 border border-gray-300 rounded" required />
+        <input type="text" id="prod-categoria" placeholder="Categoría" class="w-full p-2 border border-gray-300 rounded" required />
+        <input type="number" id="prod-precio" placeholder="Precio" step="0.01" min="0" class="w-full p-2 border border-gray-300 rounded" required />
+        <input type="text" id="prod-imagen" placeholder="URL imagen (opcional)" class="w-full p-2 border border-gray-300 rounded" />
+        <textarea id="prod-description" placeholder="Descripción (opcional)" class="w-full p-2 border border-gray-300 rounded" rows="3"></textarea>
+
+        <div class="flex justify-between">
+          <button type="submit" id="submit-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Guardar</button>
+          <button type="button" id="cancel-btn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 hidden">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <script type="module">
+      const API_URL = '/api/admin/productos';
+
+      const errorMsg = document.getElementById('error-msg');
+      const logMsg = document.getElementById('log-msg');
+      const productosBody = document.getElementById('productos-body');
+      const form = document.getElementById('form-producto');
+      const formTitle = document.getElementById('form-title');
+      const submitBtn = document.getElementById('submit-btn');
+      const cancelBtn = document.getElementById('cancel-btn');
+
+      const inputId = document.getElementById('prod-id');
+      const inputNombre = document.getElementById('prod-nombre');
+      const inputCategoria = document.getElementById('prod-categoria');
+      const inputPrecio = document.getElementById('prod-precio');
+      const inputImagen = document.getElementById('prod-imagen');
+      const inputDescription = document.getElementById('prod-description');
+
+      let productos = [];
+      let modoEdicion = false;
+
+      function getToken() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('No autorizado. Por favor inicia sesión.');
+          throw new Error('No autorizado');
+        }
+        return token;
+      }
+
+      function mostrarError(msg) {
+        errorMsg.textContent = msg;
+        setTimeout(() => (errorMsg.textContent = ''), 5000);
+      }
+
+      function mostrarLog(msg) {
+        logMsg.textContent = msg;
+        setTimeout(() => (logMsg.textContent = ''), 5000);
+      }
+
+      function renderProductos() {
+        productosBody.innerHTML = '';
+        if (productos.length === 0) {
+          productosBody.innerHTML = '<tr><td colspan="7" class="text-center p-2">No hay productos</td></tr>';
+          return;
+        }
+
+        productos.forEach((p) => {
+          const tr = document.createElement('tr');
+          tr.classList.add('border-b');
+          tr.innerHTML = `
+            <td class="p-2 border">${p.id}</td>
+            <td class="p-2 border">${p.nombre}</td>
+            <td class="p-2 border">${p.categoria}</td>
+            <td class="p-2 border">$${Number(p.precio).toFixed(2)}</td>
+            <td class="p-2 border text-center">
+              ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}" class="mx-auto max-h-20 rounded" />` : 'Sin imagen'}
+            </td>
+            <td class="p-2 border">${p.description || ''}</td>
+            <td class="p-2 border text-center">
+              <button class="text-blue-600 hover:underline editar-prod" data-id="${p.id}">Editar</button>
+              <button class="text-red-600 hover:underline ml-2 eliminar-prod" data-id="${p.id}">Eliminar</button>
+            </td>
+          `;
+          productosBody.appendChild(tr);
+        });
+
+        document.querySelectorAll('.editar-prod').forEach((btn) => {
+          btn.onclick = (e) => comenzarEdicion(e.target.dataset.id);
+        });
+
+        document.querySelectorAll('.eliminar-prod').forEach((btn) => {
+          btn.onclick = async (e) => {
+            const id = e.target.dataset.id;
+            if (confirm('¿Eliminar producto?')) await eliminarProducto(id);
+          };
+        });
+      }
+
+      async function cargarProductos() {
+        try {
+          const res = await fetch(API_URL, {
+            headers: {
+              Authorization: 'Bearer ' + getToken(),
+            },
+          });
+          if (!res.ok) throw new Error('Error al cargar productos');
+          const data = await res.json();
+          productos = data.productos || [];
+          renderProductos();
+        } catch (e) {
+          mostrarError(e.message);
+        }
+      }
+
+      function limpiarFormulario() {
+        inputId.value = '';
+        inputNombre.value = '';
+        inputCategoria.value = '';
+        inputPrecio.value = '';
+        inputImagen.value = '';
+        inputDescription.value = '';
+        modoEdicion = false;
+        formTitle.textContent = 'Agregar Producto';
+        cancelBtn.classList.add('hidden');
+      }
+
+      function comenzarEdicion(id) {
+        const p = productos.find((prod) => prod.id == id);
+        if (!p) {
+          mostrarError('Producto no encontrado');
+          return;
+        }
+        inputId.value = p.id;
+        inputNombre.value = p.nombre;
+        inputCategoria.value = p.categoria;
+        inputPrecio.value = p.precio;
+        inputImagen.value = p.imagen || '';
+        inputDescription.value = p.description || '';
+        modoEdicion = true;
+        formTitle.textContent = `Editar Producto (ID: ${p.id})`;
+        cancelBtn.classList.remove('hidden');
+      }
+
+      cancelBtn.addEventListener('click', limpiarFormulario);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const producto = {
+          nombre: inputNombre.value.trim(),
+          categoria: inputCategoria.value.trim(),
+          precio: Number(inputPrecio.value),
+          imagen: inputImagen.value.trim(),
+          description: inputDescription.value.trim()
+        };
+
+        const token = getToken();
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        };
+
+        try {
+          let res;
+          if (modoEdicion) {
+            const id = inputId.value;
+            res = await fetch(`${API_URL}/${id}`, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({ id, ...producto }),
+            });
+          } else {
+            res = await fetch(API_URL, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(producto),
+            });
+          }
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Error en la API');
+          }
+
+          limpiarFormulario();
+          await cargarProductos();
+          mostrarLog('Operación exitosa');
+        } catch (e) {
+          mostrarError(e.message);
+        }
+      });
+
+      async function eliminarProducto(id) {
+        try {
+          const res = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          });
+          if (!res.ok) throw new Error('No se pudo eliminar');
+          await cargarProductos();
+        } catch (e) {
+          mostrarError(e.message);
+        }
+      }
+
+      cargarProductos();
+    </script>
+  </body>
+</html>

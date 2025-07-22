@@ -1,0 +1,249 @@
+---
+const API_URL = '/api/admin/user';
+---
+
+<style>
+  /* tu CSS aquí */
+</style>
+
+<h1>Gestión de Usuarios (Admin)</h1>
+
+<div id="error" style="color: red;"></div>
+<div id="loading">Cargando usuarios...</div>
+
+<table id="usersTable" style="width: 100%; border-collapse: collapse; display:none;">
+  <thead>
+    <tr>
+      <th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="usersBody"></tbody>
+</table>
+
+<h2 id="formTitle">Agregar Usuario</h2>
+<form id="userForm">
+  <input type="hidden" id="userId" />
+  <div>
+    <label>Usuario</label>
+    <input type="text" id="username" required />
+  </div>
+  <div>
+    <label>Email</label>
+    <input type="email" id="email" required />
+  </div>
+  <div>
+    <label>Contraseña <span id="passwordNote"></span></label>
+    <input type="password" id="password" />
+  </div>
+  <div>
+    <label>Rol</label>
+    <select id="role" required>
+      <option value="admin">admin</option>
+      <option value="empleado">empleado</option>
+      <option value="user">user</option>
+    </select>
+  </div>
+  <button type="submit">Agregar</button>
+  <button type="button" id="cancelBtn" style="display:none;">Cancelar</button>
+</form>
+
+<script client:load>
+  const API_URL = '/api/admin/user';
+
+  const errorDiv = document.getElementById('error');
+  const loadingDiv = document.getElementById('loading');
+  const usersTable = document.getElementById('usersTable');
+  const usersBody = document.getElementById('usersBody');
+  const formTitle = document.getElementById('formTitle');
+  const form = document.getElementById('userForm');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  let formMode = 'add';
+
+  function setError(message) {
+    errorDiv.textContent = message;
+  }
+
+  function clearError() {
+    errorDiv.textContent = '';
+  }
+
+  function showLoading(show) {
+    loadingDiv.style.display = show ? 'block' : 'none';
+  }
+
+  async function fetchUsers() {
+    showLoading(true);
+    clearError();
+    usersTable.style.display = 'none';
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No autorizado: falta token');
+      }
+      const res = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error al cargar usuarios');
+      }
+      const data = await res.json();
+      renderUsers(data.users);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function renderUsers(users) {
+    usersBody.innerHTML = '';
+    if (!users.length) {
+      usersBody.innerHTML = '<tr><td colspan="5">No hay usuarios</td></tr>';
+    } else {
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${user.id}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>
+            <button data-id="${user.id}" data-action="edit">Editar</button>
+            <button data-id="${user.id}" data-action="delete">Eliminar</button>
+          </td>
+        `;
+        usersBody.appendChild(tr);
+      });
+    }
+    usersTable.style.display = 'table';
+  }
+
+  function fillForm(user) {
+    formMode = 'edit';
+    formTitle.textContent = 'Editar Usuario';
+    form.userId.value = user.id;
+    form.username.value = user.username;
+    form.email.value = user.email;
+    form.password.value = '';
+    form.role.value = user.role;
+    form.password.required = false;
+    document.getElementById('passwordNote').textContent = '(dejar vacía para no cambiar)';
+    cancelBtn.style.display = 'inline-block';
+    form.querySelector('button[type="submit"]').textContent = 'Actualizar';
+  }
+
+  function clearForm() {
+    formMode = 'add';
+    formTitle.textContent = 'Agregar Usuario';
+    form.userId.value = '';
+    form.username.value = '';
+    form.email.value = '';
+    form.password.value = '';
+    form.role.value = 'user';
+    form.password.required = true;
+    document.getElementById('passwordNote').textContent = '';
+    cancelBtn.style.display = 'none';
+    form.querySelector('button[type="submit"]').textContent = 'Agregar';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No autorizado: falta token');
+      return;
+    }
+
+    const id = form.userId.value;
+    const username = form.username.value.trim();
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const role = form.role.value;
+
+    if (!username || !email || (formMode === 'add' && !password) || !role) {
+      setError('Faltan campos obligatorios');
+      return;
+    }
+
+    const method = formMode === 'add' ? 'POST' : 'PUT';
+
+    const body = { username, email, role };
+    if (formMode === 'edit') body.id = id;
+    if (password) body.password = password;
+
+    try {
+      const res = await fetch(API_URL, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Error en la operación');
+      alert(result.message);
+      clearForm();
+      fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    clearForm();
+    clearError();
+  });
+
+  usersBody.addEventListener('click', async (e) => {
+    const target = e.target;
+    if (target.tagName === 'BUTTON') {
+      const action = target.getAttribute('data-action');
+      const id = target.getAttribute('data-id');
+      if (action === 'edit') {
+        // Buscar usuario para editar
+        const rows = Array.from(usersBody.querySelectorAll('tr'));
+        const tr = rows.find(row => row.querySelector('button[data-id]').getAttribute('data-id') === id);
+        if (!tr) return;
+        const user = {
+          id,
+          username: tr.children[1].textContent,
+          email: tr.children[2].textContent,
+          role: tr.children[3].textContent,
+        };
+        fillForm(user);
+      } else if (action === 'delete') {
+        if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;
+        clearError();
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('No autorizado: falta token');
+          return;
+        }
+        try {
+          const res = await fetch(API_URL, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ id })
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || 'Error al eliminar');
+          alert(result.message);
+          fetchUsers();
+        } catch (err) {
+          setError(err.message);
+        }
+      }
+    }
+  });
+
+  // Carga inicial
+  fetchUsers();
+</script>

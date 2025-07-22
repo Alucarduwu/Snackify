@@ -28,6 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
       [email]
     );
 
+    
     if (rows.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Usuario o contraseña incorrectos' }),
