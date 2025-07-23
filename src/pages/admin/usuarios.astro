@@ -1,250 +1,333 @@
 ---
 const API_URL = '/api/admin/user';
-
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import GoDashboard from "../../components/admin/GoDashboard.astro"
 ---
 
-<style>
-  /* tu CSS aquí */
-</style>
+<AdminLayout title="Users">
+  <GoDashboard />
+  <div class="min-h-screen bg-black text-white px-4 py-8">
+    <h1 class="text-4xl font-extrabold text-center mb-10">Gestión de Usuarios</h1>
 
-<h1>Gestión de Usuarios (Admin)</h1>
+    <div id="error" class="text-red-500 text-center mb-4"></div>
+    <div id="loading" class="text-center text-gray-300 mb-4">Cargando usuarios...</div>
 
-<div id="error" style="color: red;"></div>
-<div id="loading">Cargando usuarios...</div>
+    <button
+      onclick="openModal(false)"
+      class="mb-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded"
+    >
+      Crear Usuario
+    </button>
 
-<table id="usersTable" style="width: 100%; border-collapse: collapse; display:none;">
-  <thead>
-    <tr>
-      <th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody id="usersBody"></tbody>
-</table>
-
-<h2 id="formTitle">Agregar Usuario</h2>
-<form id="userForm">
-  <input type="hidden" id="userId" />
-  <div>
-    <label>Usuario</label>
-    <input type="text" id="username" required />
+    <table id="usersTable" class="w-full text-sm text-left text-black bg-white border border-black hidden">
+      <thead class="bg-gray-700 text-white">
+        <tr>
+          <th class="py-3 px-4 border border-black">ID</th>
+          <th class="py-3 px-4 border border-black">Usuario</th>
+          <th class="py-3 px-4 border border-black">Email</th>
+          <th class="py-3 px-4 border border-black">Rol</th>
+          <th class="py-3 px-4 border border-black">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="usersBody" class="text-black"></tbody>
+    </table>
   </div>
-  <div>
-    <label>Email</label>
-    <input type="email" id="email" required />
+
+  <!-- Modal -->
+  <div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md text-white">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="modalTitle" class="text-xl font-bold">Crear Usuario</h2>
+        <button onclick="closeModal()" class="text-white text-2xl font-bold leading-none">×</button>
+      </div>
+      <form id="userForm" class="space-y-4 text-white">
+        <input type="hidden" id="editUserId" />
+        <div>
+          <label for="username" class="block mb-1">Usuario</label>
+          <input
+            type="text"
+            id="username"
+            required
+            class="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600"
+          />
+        </div>
+        <div>
+          <label for="email" class="block mb-1">Email</label>
+          <input
+            type="email"
+            id="email"
+            required
+            class="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600"
+          />
+        </div>
+        <div>
+          <label for="role" class="block mb-1">Rol</label>
+          <select
+            id="role"
+            required
+            class="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600"
+          >
+            <option value="admin">admin</option>
+            <option value="empleado">empleado</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-4">
+          <button
+            type="button"
+            onclick="closeModal()"
+            class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            id="submitBtn"
+            class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold"
+          >
+            Crear
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-  <div>
-    <label>Contraseña <span id="passwordNote"></span></label>
-    <input type="password" id="password" />
-  </div>
-  <div>
-    <label>Rol</label>
-    <select id="role" required>
-      <option value="admin">admin</option>
-      <option value="empleado">empleado</option>
-      <option value="user">user</option>
-    </select>
-  </div>
-  <button type="submit">Agregar</button>
-  <button type="button" id="cancelBtn" style="display:none;">Cancelar</button>
-</form>
 
-<script client:load>
-  const API_URL = '/api/admin/user';
+  <script lang="js">
+    const API_URL = '/api/admin/user';
 
-  const errorDiv = document.getElementById('error');
-  const loadingDiv = document.getElementById('loading');
-  const usersTable = document.getElementById('usersTable');
-  const usersBody = document.getElementById('usersBody');
-  const formTitle = document.getElementById('formTitle');
-  const form = document.getElementById('userForm');
-  const cancelBtn = document.getElementById('cancelBtn');
+    const errorDiv = document.getElementById('error');
+    const loadingDiv = document.getElementById('loading');
+    const usersTable = document.getElementById('usersTable');
+    const usersBody = document.getElementById('usersBody');
+    const userModal = document.getElementById('userModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const userForm = document.getElementById('userForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const editUserId = document.getElementById('editUserId');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const roleInput = document.getElementById('role');
 
-  let formMode = 'add';
+    let users = [];
+    let formMode = 'add'; // 'add' o 'edit'
 
-  function setError(message) {
-    errorDiv.textContent = message;
-  }
-
-  function clearError() {
-    errorDiv.textContent = '';
-  }
-
-  function showLoading(show) {
-    loadingDiv.style.display = show ? 'block' : 'none';
-  }
-
-  async function fetchUsers() {
-    showLoading(true);
-    clearError();
-    usersTable.style.display = 'none';
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No autorizado: falta token');
-      }
-      const res = await fetch(API_URL, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Error al cargar usuarios');
-      }
-      const data = await res.json();
-      renderUsers(data.users);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      showLoading(false);
+    function setError(message) {
+      console.error('Error:', message);
+      errorDiv.textContent = message;
     }
-  }
 
-  function renderUsers(users) {
-    usersBody.innerHTML = '';
-    if (!users.length) {
-      usersBody.innerHTML = '<tr><td colspan="5">No hay usuarios</td></tr>';
-    } else {
+    function clearError() {
+      errorDiv.textContent = '';
+    }
+
+    function showLoading(show) {
+      console.log('Loading:', show);
+      loadingDiv.style.display = show ? 'block' : 'none';
+    }
+
+    async function fetchUsers() {
+      console.log('fetchUsers started');
+      showLoading(true);
+      clearError();
+      usersTable.style.display = 'none';
+      try {
+        const token = localStorage.getItem('token');
+        console.log('Token:', token);
+        if (!token) {
+          throw new Error('No autorizado: falta token');
+        }
+        const res = await fetch(API_URL, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log('fetch response:', res);
+        if (!res.ok) {
+          const errData = await res.json();
+          console.log('fetch error data:', errData);
+          throw new Error(errData.error || 'Error al cargar usuarios');
+        }
+        const data = await res.json();
+        console.log('Usuarios recibidos:', data.users);
+        users = data.users;
+        renderUsers();
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        showLoading(false);
+        console.log('fetchUsers finished');
+      }
+    }
+
+    function renderUsers() {
+      console.log('Renderizando usuarios, total:', users.length);
+      usersBody.innerHTML = '';
+      if (!users.length) {
+        usersBody.innerHTML = `
+          <tr class="border border-black">
+            <td colspan="5" class="px-4 py-3 text-center">No hay usuarios</td>
+          </tr>`;
+        usersTable.style.display = 'table';
+        return;
+      }
+
       users.forEach(user => {
         const tr = document.createElement('tr');
+        tr.className = 'border border-black';
         tr.innerHTML = `
-          <td>${user.id}</td>
-          <td>${user.username}</td>
-          <td>${user.email}</td>
-          <td>${user.role}</td>
-          <td>
-            <button data-id="${user.id}" data-action="edit">Editar</button>
-            <button data-id="${user.id}" data-action="delete">Eliminar</button>
+          <td class="px-4 py-3 border border-black">${user.id}</td>
+          <td class="px-4 py-3 border border-black">${user.username}</td>
+          <td class="px-4 py-3 border border-black">${user.email}</td>
+          <td class="px-4 py-3 border border-black">${user.role}</td>
+          <td class="px-4 py-3 border border-black">
+            <div class="flex gap-2">
+              <button
+                data-id="${user.id}"
+                data-action="edit"
+                class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-1 px-3 rounded"
+              >
+                Editar
+              </button>
+              <button
+                data-id="${user.id}"
+                data-action="delete"
+                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded"
+              >
+                Eliminar
+              </button>
+            </div>
           </td>
         `;
         usersBody.appendChild(tr);
       });
-    }
-    usersTable.style.display = 'table';
-  }
 
-  function fillForm(user) {
-    formMode = 'edit';
-    formTitle.textContent = 'Editar Usuario';
-    form.userId.value = user.id;
-    form.username.value = user.username;
-    form.email.value = user.email;
-    form.password.value = '';
-    form.role.value = user.role;
-    form.password.required = false;
-    document.getElementById('passwordNote').textContent = '(dejar vacía para no cambiar)';
-    cancelBtn.style.display = 'inline-block';
-    form.querySelector('button[type="submit"]').textContent = 'Actualizar';
-  }
-
-  function clearForm() {
-    formMode = 'add';
-    formTitle.textContent = 'Agregar Usuario';
-    form.userId.value = '';
-    form.username.value = '';
-    form.email.value = '';
-    form.password.value = '';
-    form.role.value = 'user';
-    form.password.required = true;
-    document.getElementById('passwordNote').textContent = '';
-    cancelBtn.style.display = 'none';
-    form.querySelector('button[type="submit"]').textContent = 'Agregar';
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    clearError();
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('No autorizado: falta token');
-      return;
+      usersTable.style.display = 'table';
     }
 
-    const id = form.userId.value;
-    const username = form.username.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const role = form.role.value;
+    function openModal(edit = false, user = null) {
+      console.log('openModal', { edit, user });
+      clearError();
+      userForm.reset();
+      if (edit && user) {
+        formMode = 'edit';
+        modalTitle.textContent = 'Actualizar Usuario';
+        submitBtn.textContent = 'Actualizar';
+        submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
 
-    if (!username || !email || (formMode === 'add' && !password) || !role) {
-      setError('Faltan campos obligatorios');
-      return;
+        editUserId.value = user.id;
+        usernameInput.value = user.username;
+        emailInput.value = user.email;
+        roleInput.value = user.role;
+      } else {
+        formMode = 'add';
+        modalTitle.textContent = 'Crear Usuario';
+        submitBtn.textContent = 'Crear';
+        submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+        editUserId.value = '';
+        userForm.reset();
+      }
+      userModal.classList.remove('hidden');
     }
 
-    const method = formMode === 'add' ? 'POST' : 'PUT';
-
-    const body = { username, email, role };
-    if (formMode === 'edit') body.id = id;
-    if (password) body.password = password;
-
-    try {
-      const res = await fetch(API_URL, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(body)
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Error en la operación');
-      alert(result.message);
-      clearForm();
-      fetchUsers();
-    } catch (err) {
-      setError(err.message);
+    function closeModal() {
+      console.log('closeModal');
+      userModal.classList.add('hidden');
+      clearError();
     }
-  });
 
-  cancelBtn.addEventListener('click', () => {
-    clearForm();
-    clearError();
-  });
+    userForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearError();
 
-  usersBody.addEventListener('click', async (e) => {
-    const target = e.target;
-    if (target.tagName === 'BUTTON') {
-      const action = target.getAttribute('data-action');
-      const id = target.getAttribute('data-id');
-      if (action === 'edit') {
-        // Buscar usuario para editar
-        const rows = Array.from(usersBody.querySelectorAll('tr'));
-        const tr = rows.find(row => row.querySelector('button[data-id]').getAttribute('data-id') === id);
-        if (!tr) return;
-        const user = {
-          id,
-          username: tr.children[1].textContent,
-          email: tr.children[2].textContent,
-          role: tr.children[3].textContent,
-        };
-        fillForm(user);
-      } else if (action === 'delete') {
-        if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;
-        clearError();
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('No autorizado: falta token');
-          return;
-        }
-        try {
-          const res = await fetch(API_URL, {
+      console.log('Submit formulario, modo:', formMode);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No autorizado: falta token');
+        return;
+      }
+
+      const id = editUserId.value;
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const role = roleInput.value;
+
+      console.log('Datos del formulario:', { id, username, email, role });
+
+      if (!username || !email || !role) {
+        setError('Faltan campos obligatorios');
+        return;
+      }
+
+      const method = formMode === 'add' ? 'POST' : 'PUT';
+
+      const body = { username, email, role };
+      if (formMode === 'edit') body.id = id;
+
+      console.log('Fetch API - method:', method, 'body:', body);
+
+      try {
+        const res = await fetch(API_URL, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+        console.log('Respuesta del servidor:', res);
+        const result = await res.json();
+        console.log('Resultado parseado:', result);
+        if (!res.ok) throw new Error(result.error || 'Error en la operación');
+        alert(result.message);
+        closeModal();
+        fetchUsers();
+      } catch (err) {
+        setError(err.message);
+      }
+    });
+
+    usersBody.addEventListener('click', e => {
+      const target = e.target;
+      if (target.tagName === 'BUTTON') {
+        const action = target.getAttribute('data-action');
+        const id = target.getAttribute('data-id');
+        console.log('Botón clickeado:', { action, id });
+        if (action === 'edit') {
+          const user = users.find(u => u.id == id);
+          if (!user) {
+            console.warn('Usuario no encontrado para editar:', id);
+            return;
+          }
+          openModal(true, user);
+        } else if (action === 'delete') {
+          if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;
+          const token = localStorage.getItem('token');
+          if (!token) {
+            setError('No autorizado: falta token');
+            return;
+          }
+          fetch(API_URL, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ id })
-          });
-          const result = await res.json();
-          if (!res.ok) throw new Error(result.error || 'Error al eliminar');
-          alert(result.message);
-          fetchUsers();
-        } catch (err) {
-          setError(err.message);
+          })
+            .then(res => res.json())
+            .then(result => {
+              console.log('Respuesta eliminar:', result);
+              if (!result.success) throw new Error(result.error || 'Error al eliminar');
+              alert(result.message);
+              fetchUsers();
+            })
+            .catch(err => setError(err.message));
         }
       }
-    }
-  });
+    });
 
-  // Carga inicial
-  fetchUsers();
-</script>
+    // Carga inicial
+    fetchUsers();
+  </script>
+</AdminLayout>

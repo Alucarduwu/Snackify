@@ -16,19 +16,20 @@ import logo from '../../public/Img/Icons/logo.webp';
         </div>
         <div class="group">
             <ul class="navigation">
-                <li><div class="flex items-center">
+                <li><div class="flex items-center p-2">
                     <a href="/user" id="account" class="options">Mi cuenta </a>
                     <a href="/user" id="account"><ion-icon class="icons" name="person-circle-outline"></ion-icon></a>
                     </div>
                 </li>
-                <li><div class="flex items-center">
+                <li><div class="flex items-center p-2">
                     <a href="/orders" id="orders" class="options">Pedidos </a>
                     <a href="/orders" id="orders"><ion-icon class="icons" name="pricetags-outline"></ion-icon></a>
                     </div>
                 </li>
-                <li><div class="flex items-center">
+                <li><div class="flex items-center relativ p-2">
                     <a href="/shopCar" id="shopCar" class="options">Carrito </a>
                     <a href="/shopCar" id="shopCar"><ion-icon class="icons" name="cart-outline"></ion-icon></a>
+                    <span id="cart-count" class="absolute font-bold top-0 right-0 rounded-full px-1 bg-red-500"></span>
                     </div>
                 </li>
             </ul>
@@ -191,5 +192,46 @@ import logo from '../../public/Img/Icons/logo.webp';
     }
 }
 </style>
-
+    
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+
+<script lang="js">
+    function updateCartCount() {
+        const cartCountSpan = document.getElementById('cart-count');
+        if (!cartCountSpan) return;
+
+        const cartStr = localStorage.getItem('cart');
+        if (!cartStr) {
+        cartCountSpan.style.display = 'none';
+        return;
+        }
+
+        try {
+        const cart = JSON.parse(cartStr);
+        const totalQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+
+        if (totalQuantity > 0) {
+            cartCountSpan.textContent = totalQuantity;
+            cartCountSpan.style.display = 'inline';
+        } else {
+            cartCountSpan.style.display = 'none'; 
+        }
+        } catch {
+        cartCountSpan.style.display = 'none'; 
+        }
+    }
+
+    let lastCart = null;
+    function checkCartChanges() {
+        const cartStr = localStorage.getItem('cart');
+        if (cartStr !== lastCart) {
+        lastCart = cartStr;
+        updateCartCount();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartCount();      
+        setInterval(checkCartChanges, 500);
+    });
+</script>

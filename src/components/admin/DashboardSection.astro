@@ -1,0 +1,12 @@
+---
+const { title = "Título por defecto" } = Astro.props;
+---
+
+<section class="mb-20 max-w-5xl mx-auto">
+    <h2 class="text-4xl font-semibold mb-8 border-b-4 border-indigo-500 pb-3 drop-shadow-md">
+    {title}
+    </h2>
+    <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
+        <slot />
+    </div>
+</section>

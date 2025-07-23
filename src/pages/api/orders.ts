@@ -1,6 +1,32 @@
 import type { APIRoute } from 'astro';
 import { jwtVerify } from 'jose';
 import { connectDB } from '../../lib/db';
+import crypto from 'crypto';
+
+const ENCRYPTION_KEY_HEX = '77e0c04e3c167a659209ece3085de0be857d33ee251d6e86cc89addd14a69e2d';
+const IV_HEX = '76b016b1ce1ab417d8194457e148dc19';
+
+const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_HEX, 'hex');
+const IV = Buffer.from(IV_HEX, 'hex');
+
+function decrypt(encryptedText: string) {
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, IV);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (e1) {
+    try {
+      const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, IV);
+      let decrypted = decipher.update(encryptedText, 'base64', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    } catch (e2) {
+      console.warn('Fallo desencriptar tarjeta:', e2);
+      return '************';
+    }
+  }
+}
 
 export const prerender = false;
 const JWT_SECRET = new TextEncoder().encode('tu_secreto_super_seguro_aqui');
@@ -19,7 +45,6 @@ export const GET: APIRoute = async ({ request }) => {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     const db = await connectDB();
 
-    // Obtener datos usuario con join a roles para traer nombre del rol
     const [userRows]: any = await db.execute(
       `SELECT u.id, u.username, u.email, u.perfil, r.nombre AS role
        FROM usuarios u
@@ -37,25 +62,51 @@ export const GET: APIRoute = async ({ request }) => {
 
     const user = userRows[0];
 
-    // Imagen por defecto si no tiene
     if (!user.perfil) {
       user.perfil = '/Img/User/LICHT.webp';
     }
 
-    // Obtener órdenes según rol
     let ordenesRows;
     if (user.role === 'admin' || user.role === 'empleado') {
-      const [allOrders]: any = await db.execute('SELECT * FROM ordenes ORDER BY fecha DESC');
+      const [allOrders]: any = await db.execute(
+        `SELECT o.*, u.username, u.email,
+                CONCAT(
+                  d.calle, ', ', d.ciudad, ', ', d.estado, ', ', d.pais, ', CP: ', d.codigo_postal,
+                  IF(d.referencia IS NOT NULL AND d.referencia != '', CONCAT(' (', d.referencia, ')'), '')
+                ) AS direccion,
+                mp.numero AS metodo_pago
+         FROM ordenes o
+         JOIN usuarios u ON o.usuario_id = u.id
+         JOIN direcciones d ON o.direccion_id = d.id
+         JOIN metodos_pago mp ON o.metodo_pago_id = mp.id
+         ORDER BY o.fecha DESC`
+      );
       ordenesRows = allOrders;
     } else {
       const [userOrders]: any = await db.execute(
-        'SELECT * FROM ordenes WHERE usuario_id = ? ORDER BY fecha DESC',
+        `SELECT o.*, u.username, u.email,
+          CONCAT(
+            d.calle, ', ', d.ciudad, ', ', d.estado, ', ', d.pais, ', CP: ', d.codigo_postal,
+            IF(d.referencia IS NOT NULL AND d.referencia != '', CONCAT(' (', d.referencia, ')'), '')
+          ) AS direccion,
+          mp.numero AS metodo_pago
+         FROM ordenes o
+         JOIN usuarios u ON o.usuario_id = u.id
+         JOIN direcciones d ON o.direccion_id = d.id
+         JOIN metodos_pago mp ON o.metodo_pago_id = mp.id
+         WHERE o.usuario_id = ?
+         ORDER BY o.fecha DESC`,
         [user.id]
       );
       ordenesRows = userOrders;
     }
 
-    // Traer productos de cada orden con los datos relevantes
+    // Desencriptar método de pago y mostrar solo los últimos 4 dígitos
+    ordenesRows.forEach((orden: any) => {
+      const numero = decrypt(orden.metodo_pago);
+      orden.metodo_pago = '**** **** **** ' + numero.slice(-4);
+    });
+
     for (const orden of ordenesRows) {
       const [productosRows]: any = await db.execute(
         `SELECT 
@@ -91,6 +142,9 @@ export const GET: APIRoute = async ({ request }) => {
     );
   }
 };
+
+// PATCH y POST no se modificaron, quedan exactamente como los tenías.
+
 
 export const PATCH: APIRoute = async ({ request }) => {
   try {
