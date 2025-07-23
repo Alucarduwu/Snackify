@@ -1,4 +1,7 @@
 ---
+import AdminLayout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/admin/AdminNav.astro'
+import DashboardSection from '../../components/admin/DashboardSection.astro'
 import { parse } from 'cookie';
 import "../../styles/global.css";
 import NavBar from '../../components/NavBar.astro';
@@ -17,91 +20,33 @@ const rol = cookies.rol;
 const usuario = { nombre: "Admin Demo" };
 ---
 
-<html lang="es" class="bg-gray-900 text-gray-100 antialiased selection:bg-indigo-600 selection:text-white">
-  <head>
-    <title>Panel de Administración</title>
-  </head>
-  <body class="min-h-screen flex flex-col font-sans">
-    <NavBar />
-
-    <main class="flex-grow max-w-7xl mx-auto p-6 sm:p-10 md:p-12">
-      <header class="mb-16 max-w-3xl mx-auto text-center">
+<AdminLayout title="Dashboard">
+      <main class="flex-grow max-w-7xl mx-auto p-6 sm:p-10 md:p-12 bg-black">
+      <div class="mb-16 max-w-3xl mx-auto text-center">
         <h1 class="text-5xl font-extrabold text-white tracking-tight mb-3 drop-shadow-md">Panel de Administración</h1>
         <p class="text-xl text-gray-300">
           Bienvenido, <span class="font-semibold text-indigo-400">{usuario.nombre}</span> 👑
         </p>
-      </header>
+      </div>
 
-      <nav class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl mx-auto mb-20">
-        <a
-          href="/admin/productos"
-          class="flex flex-col items-center justify-center p-10 bg-gray-800 rounded-2xl shadow-2xl hover:bg-indigo-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500"
-          aria-label="Gestionar Productos"
-        >
-          <span class="text-6xl mb-5 select-none">🛒</span>
-          <span class="text-2xl font-semibold text-white tracking-wide">Gestionar Productos</span>
-        </a>
+      <AdminNav />
 
-        <a
-          href="/admin/usuarios"
-          class="flex flex-col items-center justify-center p-10 bg-gray-800 rounded-2xl shadow-2xl hover:bg-indigo-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500"
-          aria-label="Ver Usuarios"
-        >
-          <span class="text-6xl mb-5 select-none">👤</span>
-          <span class="text-2xl font-semibold text-white tracking-wide">Ver Usuarios</span>
-        </a>
+      <DashboardSection title="Resumen General">
+        <ShopResume />
+      </DashboardSection>
 
-        <a
-          href="/admin/pedidos"
-          class="flex flex-col items-center justify-center p-10 bg-gray-800 rounded-2xl shadow-2xl hover:bg-indigo-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500"
-          aria-label="Controlar Pedidos"
-        >
-          <span class="text-6xl mb-5 select-none">📦</span>
-          <span class="text-2xl font-semibold text-white tracking-wide">Controlar Pedidos</span>
-        </a>
+      <DashboardSection title="Historial de Pedidos">
+        <OrderHistory />
+      </DashboardSection>
 
-        <!-- Nueva opción para Almacenes -->
-        <a
-          href="/admin/almacenes"
-          class="flex flex-col items-center justify-center p-10 bg-gray-800 rounded-2xl shadow-2xl hover:bg-indigo-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500"
-          aria-label="Gestionar Almacenes"
-        >
-          <span class="text-6xl mb-5 select-none">🏬</span>
-          <span class="text-2xl font-semibold text-white tracking-wide">Gestionar Almacenes</span>
-        </a>
-      </nav>
-
-      <section class="mb-20 max-w-5xl mx-auto">
-        <h2 class="text-4xl font-semibold mb-8 border-b-4 border-indigo-500 pb-3 drop-shadow-md">Resumen General</h2>
-        <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
-          <ShopResume />
-        </div>
-      </section>
-
-      <section class="mb-20 max-w-5xl mx-auto">
-        <h2 class="text-4xl font-semibold mb-8 border-b-4 border-indigo-500 pb-3 drop-shadow-md">Historial de Pedidos</h2>
-        <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
-          <OrderHistory />
-        </div>
-      </section>
-
-      <section class="mb-20 max-w-5xl mx-auto">
-        <h2 class="text-4xl font-semibold mb-8 border-b-4 border-indigo-500 pb-3 drop-shadow-md">Datos Admin</h2>
-        <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
-          <UsersData />
-        </div>
-      </section>
+      <DashboardSection title="Datos Admin">
+        <UsersData />
+      </DashboardSection>
 
       <div class="mt-24 text-center">
-        <a
-          href="/"
-          class="inline-block text-indigo-400 hover:text-indigo-600 font-medium text-lg transition-colors duration-300"
-        >
+        <a href="/" class="inline-block text-indigo-400 hover:text-indigo-600 font-medium text-lg transition-colors duration-300">
           ← Volver a la tienda
         </a>
       </div>
     </main>
-
-    <Footer />
-  </body>
-</html>
+</AdminLayout>
