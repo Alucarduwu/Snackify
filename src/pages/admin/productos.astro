@@ -1,76 +1,100 @@
 ---
 import "../../styles/global.css";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import GoDashboard from "../../components/admin/GoDashboard.astro";
 ---
 
-<html lang="es" class="bg-gray-50 min-h-screen p-6 font-sans">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin Productos CRUD - Debug</title>
-  </head>
-  <body class="bg-gray-50 text-gray-800">
-    <main class="max-w-6xl mx-auto">
-      <h1 class="text-center text-4xl font-extrabold mb-10 pt-6 text-gray-900">
-        Panel de Administración de Productos (Debug con Logs)
-      </h1>
+<AdminLayout title="Administracion de productos">
+  <GoDashboard />
+  <main class="max-w-6xl mx-auto">
+    <h1 class="text-center text-4xl font-extrabold mb-10 pt-6 text-gray-300">
+      Panel de Administración de Productos
+    </h1>
 
-      <section aria-live="polite" class="mb-6">
-        <p
-          id="error-msg"
-          class="mx-auto max-w-xl border border-red-600 bg-red-100 text-red-600 font-semibold p-3 rounded-md shadow-md text-center hidden"
-          role="alert"
-        ></p>
-        <p
-          id="log-msg"
-          class="mx-auto max-w-xl border border-green-600 bg-green-100 text-green-700 font-semibold p-3 rounded-md shadow-md text-center hidden"
-          role="status"
-        ></p>
-      </section>
-
-      <section
-        class="overflow-x-auto rounded-lg shadow-lg mb-12 bg-white border border-gray-200"
+    <div class="w-full flex justify-end items-center mb-4">
+      <button
+        id="btnOpenCreateModal"
+        class="text-white border border-blue-700 font-bold px-4 py-2 rounded-xl bg-blue-700 transition duration-300 hover:bg-blue-900 hover:border-blue-900 "
       >
-        <table
-          id="productos-table"
-          class="w-full table-auto border-collapse text-sm"
-          aria-label="Lista de productos"
+        Crear producto
+      </button>
+    </div>
+
+    <section aria-live="polite" class="mb-6">
+      <p
+        id="error-msg"
+        class="mx-auto max-w-xl border border-red-600 bg-red-100 text-red-600 font-semibold p-3 rounded-md shadow-md text-center hidden"
+        role="alert"
+      ></p>
+      <p
+        id="log-msg"
+        class="mx-auto max-w-xl border border-green-600 bg-green-100 text-green-700 font-semibold p-3 rounded-md shadow-md text-center hidden"
+        role="status"
+      ></p>
+    </section>
+
+    <section
+      class="overflow-x-auto rounded-lg shadow-lg mb-12 bg-white border border-gray-200"
+    >
+      <table
+        id="productos-table"
+        class="w-full table-auto border-collapse text-sm"
+        aria-label="Lista de productos"
+      >
+        <thead
+          class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold tracking-wide"
         >
-          <thead
-            class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold tracking-wide"
-          >
-            <tr>
-              <th scope="col" class="p-3 border border-gray-300 text-left">
-                ID
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-left">
-                Nombre
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-left">
-                Categoría
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-right">
-                Precio
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-center">
-                Imagen
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-left">
-                Descripción
-              </th>
-              <th scope="col" class="p-3 border border-gray-300 text-center">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody id="productos-body" class="divide-y divide-gray-200"></tbody>
-        </table>
-      </section>
+          <tr>
+            <th scope="col" class="p-3 border border-gray-300 text-left">
+              ID
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-left">
+              Nombre
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-left">
+              Categoría
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-right">
+              Precio
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-center">
+              Imagen
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-left">
+              Descripción
+            </th>
+            <th scope="col" class="p-3 border border-gray-300 text-center">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody id="productos-body" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </section>
 
-      <section
-        class="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto mb-12"
+    <!-- Modal -->
+    <div
+      id="modal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden"
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="modalTitle"
+    >
+      <div
+        class="bg-white rounded-lg shadow-lg p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
       >
-        <h2 id="form-title" class="text-2xl font-semibold mb-6 text-gray-900">
-          Agregar Producto
-        </h2>
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="modalTitle" class="text-2xl font-semibold text-gray-900">
+            Agregar Producto
+          </h2>
+          <button
+            id="btnCloseModal"
+            aria-label="Cerrar modal"
+            class="text-gray-700 hover:text-gray-900 text-2xl font-bold focus:outline-none"
+          >
+            &times;
+          </button>
+        </div>
 
         <form id="form-producto" class="space-y-6" novalidate>
           <input type="hidden" id="prod-id" />
@@ -107,7 +131,6 @@ import "../../styles/global.css";
               <option value="" disabled selected
                 >Seleccione una categoría</option
               >
-              <!-- Se llenan dinámicamente -->
             </select>
             <p id="categoriaHelp" class="text-xs text-gray-500 mt-1">
               Las categorías se obtienen del sistema.
@@ -144,7 +167,7 @@ import "../../styles/global.css";
               name="imagen"
               placeholder="https://ejemplo.com/imagen.jpg o /imagenes/miimagen.jpg"
               class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              pattern="^((https?:\\/\\/).+|\\/.*|\\.\\/.*|[^\\s]+)$"
+              pattern="^((https?:\\/\\/).+|\\/.|\\.\\/.|[^\\s]+)$"
             />
           </div>
 
@@ -167,7 +190,7 @@ import "../../styles/global.css";
             <button
               type="button"
               id="cancel-btn"
-              class="hidden px-5 py-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              class="px-5 py-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
             >
               Cancelar
             </button>
@@ -180,321 +203,340 @@ import "../../styles/global.css";
             </button>
           </div>
         </form>
-      </section>
-    </main>
+      </div>
+    </div>
+  </main>
+</AdminLayout>
 
-    <script type="module">
-      const API_URL = '/api/admin/productos';
-      const API_CATEGORIAS = '/api/admin/categorias';
+<script type="module">
+  const API_URL = '/api/admin/productos';
+  const API_CATEGORIAS = '/api/admin/categorias';
 
-      const errorMsg = document.getElementById('error-msg');
-      const logMsg = document.getElementById('log-msg');
-      const productosBody = document.getElementById('productos-body');
-      const form = document.getElementById('form-producto');
-      const formTitle = document.getElementById('form-title');
-      const submitBtn = document.getElementById('submit-btn');
-      const cancelBtn = document.getElementById('cancel-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const logMsg = document.getElementById('log-msg');
+  const productosBody = document.getElementById('productos-body');
+  const form = document.getElementById('form-producto');
+  const formTitle = document.getElementById('modalTitle');
+  const submitBtn = document.getElementById('submit-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
 
-      const inputId = document.getElementById('prod-id');
-      const inputNombre = document.getElementById('prod-nombre');
-      const inputCategoria = document.getElementById('prod-categoria');
-      const inputPrecio = document.getElementById('prod-precio');
-      const inputImagen = document.getElementById('prod-imagen');
-      const inputDescription = document.getElementById('prod-description');
+  const btnOpenCreateModal = document.getElementById('btnOpenCreateModal');
+  const modal = document.getElementById('modal');
+  const btnCloseModal = document.getElementById('btnCloseModal');
 
-      let productos = [];
-      let categorias = [];
-      let modoEdicion = false;
+  const inputId = document.getElementById('prod-id');
+  const inputNombre = document.getElementById('prod-nombre');
+  const inputCategoria = document.getElementById('prod-categoria');
+  const inputPrecio = document.getElementById('prod-precio');
+  const inputImagen = document.getElementById('prod-imagen');
+  const inputDescription = document.getElementById('prod-description');
 
-      function getToken() {
-        const token = localStorage.getItem('token');
-        console.log('[LOG] Obteniendo token desde localStorage:', token);
-        if (!token) {
-          alert('No autorizado. Por favor inicia sesión.');
-          throw new Error('No autorizado: token no encontrado en localStorage');
-        }
-        return token;
+  let productos = [];
+  let categorias = [];
+  let modoEdicion = false;
+
+  function getToken() {
+    const token = localStorage.getItem('token');
+    console.log('Token obtenido:', token);
+    if (!token) {
+      alert('No autorizado. Por favor inicia sesión.');
+      throw new Error('No autorizado: token no encontrado en localStorage');
+    }
+    return token;
+  }
+
+  function mostrarError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      errorMsg.classList.add('hidden');
+      errorMsg.textContent = '';
+    }, 10000);
+  }
+
+  function mostrarLog(msg) {
+    logMsg.textContent = msg;
+    logMsg.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      logMsg.classList.add('hidden');
+      logMsg.textContent = '';
+    }, 10000);
+  }
+
+  // Escapa texto para evitar inyección HTML
+  function escapeHtml(text) {
+    if (!text) return '';
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  async function cargarCategorias() {
+    try {
+      const token = getToken();
+      console.log('Cargando categorías con token:', token);
+      const res = await fetch(API_CATEGORIAS, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+
+      console.log('Respuesta categorías cruda:', res);
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status} al cargar categorías: ${text}`);
       }
 
-      function mostrarError(msg) {
-        console.error('[ERROR]', msg);
-        errorMsg.textContent = msg;
-        errorMsg.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => {
-          errorMsg.classList.add('hidden');
-          errorMsg.textContent = '';
-        }, 10000);
-      }
+      const data = await res.json();
+      console.log('Datos categorías recibidos:', data);
 
-      function mostrarLog(msg) {
-        console.log('[LOG]', msg);
-        logMsg.textContent = msg;
-        logMsg.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => {
-          logMsg.classList.add('hidden');
-          logMsg.textContent = '';
-        }, 10000);
-      }
+      categorias = data.categorias || [];
 
-      // Escapa texto para evitar inyección HTML
-      function escapeHtml(text) {
-        if (!text) return '';
-        return text
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
+      inputCategoria.innerHTML =
+        '<option value="" disabled selected>Seleccione una categoría</option>';
+      categorias.forEach((cat) => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.nombre;
+        inputCategoria.appendChild(option);
+      });
+    } catch (e) {
+      console.error('Error cargarCategorias:', e);
+      mostrarError(`Error al cargar categorías: ${e.message}`);
+      inputCategoria.innerHTML =
+        '<option value="" disabled selected>Error al cargar categorías</option>';
+    }
+  }
 
-      async function cargarCategorias() {
-        mostrarLog('Iniciando carga de categorías...');
-        console.group('cargarCategorias');
+  function renderProductos() {
+    productosBody.innerHTML = '';
+    if (productos.length === 0) {
+      productosBody.innerHTML =
+        '<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay productos registrados</td></tr>';
+      return;
+    }
 
-        try {
-          const token = getToken();
-          console.log('[DEBUG] Token para cargar categorías:', token);
-
-          const res = await fetch(API_CATEGORIAS, {
-            headers: {
-              Authorization: 'Bearer ' + token,
-            },
-          });
-          console.log('[DEBUG] Respuesta fetch categorías:', res);
-
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`HTTP ${res.status} al cargar categorías: ${text}`);
-          }
-
-          const data = await res.json();
-          console.log('[DEBUG] Datos recibidos categorías:', data);
-
-          categorias = data.categorias || [];
-          if (categorias.length === 0) {
-            mostrarError('No se encontraron categorías en la respuesta.');
-          } else {
-            mostrarLog(`Categorías cargadas: ${categorias.length}`);
-          }
-
-          inputCategoria.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
-          categorias.forEach((cat) => {
-            console.log(`[DEBUG] Agregando categoría: id=${cat.id}, nombre=${cat.nombre}`);
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = cat.nombre;
-            inputCategoria.appendChild(option);
-          });
-        } catch (e) {
-          mostrarError(`Error al cargar categorías: ${e.message}`);
-          inputCategoria.innerHTML = '<option value="" disabled selected>Error al cargar categorías</option>';
-          console.error('[ERROR] cargarCategorias:', e);
-        }
-        console.groupEnd();
-      }
-
-      function renderProductos() {
-        console.log('[LOG] Renderizando productos:', productos);
-        productosBody.innerHTML = '';
-        if (productos.length === 0) {
-          productosBody.innerHTML =
-            '<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay productos registrados</td></tr>';
-          return;
-        }
-
-        productos.forEach((p) => {
-          const tr = document.createElement('tr');
-          tr.classList.add('hover:bg-gray-50', 'transition-colors', 'duration-150');
-          tr.innerHTML = `
+    productos.forEach((p) => {
+      const tr = document.createElement('tr');
+      tr.classList.add('hover:bg-gray-50', 'transition-colors', 'duration-150');
+      tr.innerHTML = `
             <td class="p-3 border border-gray-200">${p.id}</td>
-            <td class="p-3 border border-gray-200 font-medium">${escapeHtml(p.nombre)}</td>
-            <td class="p-3 border border-gray-200">${escapeHtml(p.categoria || 'N/A')}</td>
-            <td class="p-3 border border-gray-200 text-right font-mono text-indigo-600">$${Number(p.precio).toFixed(2)}</td>
+            <td class="p-3 border border-gray-200 font-medium">${escapeHtml(
+              p.nombre
+            )}</td>
+            <td class="p-3 border border-gray-200">${escapeHtml(
+              p.categoria || 'N/A'
+            )}</td>
+            <td class="p-3 border border-gray-200 text-right font-mono text-indigo-600">$${Number(
+              p.precio
+            ).toFixed(2)}</td>
             <td class="p-3 border border-gray-200 text-center">
               ${
                 p.imagen
-                  ? `<img src="${escapeHtml(p.imagen)}" alt="Imagen de ${escapeHtml(p.nombre)}" class="inline-block max-h-16 rounded-md object-contain" loading="lazy" />`
+                  ? `<img src="${escapeHtml(
+                      p.imagen
+                    )}" alt="Imagen de ${escapeHtml(
+                      p.nombre
+                    )}" class="inline-block max-h-16 rounded-md object-contain" loading="lazy" />`
                   : '<span class="text-gray-400 italic">Sin imagen</span>'
               }
             </td>
-            <td class="p-3 border border-gray-200">${escapeHtml(p.description || '')}</td>
-            <td class="p-3 border border-gray-200 text-center space-x-3">
+            <td class="p-3 border border-gray-200">${escapeHtml(
+              p.description || ''
+            )}</td>
+            <td class="p-3 border border-gray-200 flex flex-col items-center justify-center">
               <button
-                class="editar-prod text-indigo-600 hover:text-indigo-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600 rounded"
-                aria-label="Editar producto ${escapeHtml(p.nombre)}"
+                class="editar-prod text-white bg-yellow-400 px-4 py-2 font-semibold rounded transition duration-300 hover:bg-yellow-500"
                 data-id="${p.id}"
               >Editar</button>
               <button
-                class="eliminar-prod text-red-600 hover:text-red-900 font-semibold focus:outline-none focus:ring-2 focus:ring-red-600 rounded"
-                aria-label="Eliminar producto ${escapeHtml(p.nombre)}"
+                class="eliminar-prod text-white bg-red-500 px-4 py-2 mt-2  font-semibold rounded transition duration-300 hover:bg-red-700"
                 data-id="${p.id}"
               >Eliminar</button>
             </td>
           `;
-          productosBody.appendChild(tr);
-        });
+      productosBody.appendChild(tr);
+    });
 
-        document.querySelectorAll('.editar-prod').forEach((btn) => {
-          btn.onclick = (e) => comenzarEdicion(e.target.dataset.id);
-        });
+    console.log('Productos renderizados:', productos);
 
-        document.querySelectorAll('.eliminar-prod').forEach((btn) => {
-          btn.onclick = async (e) => {
-            const id = e.target.dataset.id;
-            if (confirm('¿Eliminar producto? Esta acción no se puede deshacer.')) await eliminarProducto(id);
-          };
-        });
-      }
+    document.querySelectorAll('.editar-prod').forEach((btn) => {
+      btn.onclick = (e) => comenzarEdicion(e.target.dataset.id);
+    });
 
-      async function cargarProductos() {
-        mostrarLog('Iniciando carga de productos...');
-        try {
-          const token = getToken();
-          console.log('[DEBUG] Token para cargar productos:', token);
+    document.querySelectorAll('.eliminar-prod').forEach((btn) => {
+      btn.onclick = async (e) => {
+        const id = e.target.dataset.id;
+        if (confirm('¿Eliminar producto? Esta acción no se puede deshacer.'))
+          await eliminarProducto(id);
+      };
+    });
+  }
 
-          const res = await fetch(API_URL, {
-            headers: {
-              Authorization: 'Bearer ' + token,
-            },
-          });
-          console.log('[DEBUG] Respuesta fetch productos:', res);
+  async function cargarProductos() {
+    try {
+      const token = getToken();
+      console.log('Cargando productos con token:', token);
 
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`HTTP ${res.status} al cargar productos: ${text}`);
-          }
-
-          const data = await res.json();
-          console.log('[DEBUG] Datos recibidos productos:', data);
-
-          productos = data.productos || [];
-          renderProductos();
-          mostrarLog(`Productos cargados: ${productos.length}`);
-        } catch (e) {
-          mostrarError(`Error al cargar productos: ${e.message}`);
-          console.error('[ERROR] cargarProductos:', e);
-        }
-      }
-
-      function limpiarFormulario() {
-        console.log('[LOG] Limpiando formulario...');
-        inputId.value = '';
-        inputNombre.value = '';
-        inputCategoria.value = '';
-        inputPrecio.value = '';
-        inputImagen.value = '';
-        inputDescription.value = '';
-        modoEdicion = false;
-        formTitle.textContent = 'Agregar Producto';
-        cancelBtn.classList.add('hidden');
-        submitBtn.textContent = 'Guardar';
-      }
-
-      function comenzarEdicion(id) {
-        console.log('[LOG] Comenzando edición del producto ID:', id);
-        const p = productos.find((prod) => prod.id == id);
-        if (!p) {
-          mostrarError('Producto no encontrado');
-          console.error('[ERROR] Producto no encontrado para editar, id:', id);
-          return;
-        }
-        inputId.value = p.id;
-        inputNombre.value = p.nombre;
-        inputCategoria.value = p.categoria_id || '';
-        inputPrecio.value = p.precio;
-        inputImagen.value = p.imagen || '';
-        inputDescription.value = p.description || '';
-        modoEdicion = true;
-        formTitle.textContent = `Editar Producto (ID: ${p.id})`;
-        cancelBtn.classList.remove('hidden');
-        submitBtn.textContent = 'Actualizar';
-      }
-
-      cancelBtn.addEventListener('click', () => {
-        console.log('[LOG] Cancelando edición...');
-        limpiarFormulario();
+      const res = await fetch(API_URL, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
       });
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      console.log('Respuesta productos cruda:', res);
 
-        if (!form.checkValidity()) {
-          mostrarError('Por favor completa todos los campos obligatorios correctamente.');
-          form.reportValidity();
-          return;
-        }
-
-        const producto = {
-          nombre: inputNombre.value.trim(),
-          categoria_id: inputCategoria.value,
-          precio: Number(inputPrecio.value),
-          imagen: inputImagen.value.trim(),
-          description: inputDescription.value.trim(),
-        };
-
-        const token = getToken();
-        const headers = {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        };
-
-        try {
-          let res;
-          if (modoEdicion) {
-            const id = inputId.value;
-            console.log('[LOG] Actualizando producto ID:', id, producto);
-            res = await fetch(`${API_URL}/${id}`, {
-              method: 'PUT',
-              headers,
-              body: JSON.stringify({ id, ...producto }),
-            });
-          } else {
-            console.log('[LOG] Agregando producto nuevo:', producto);
-            res = await fetch(API_URL, {
-              method: 'POST',
-              headers,
-              body: JSON.stringify(producto),
-            });
-          }
-
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Error en la API');
-          }
-
-          mostrarLog('Producto guardado correctamente.');
-          limpiarFormulario();
-          await cargarProductos();
-        } catch (e) {
-          mostrarError(`Error al guardar producto: ${e.message}`);
-        }
-      });
-
-      async function eliminarProducto(id) {
-        try {
-          console.log('[LOG] Eliminando producto ID:', id);
-          const res = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-            },
-          });
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`HTTP ${res.status} al eliminar producto: ${text}`);
-          }
-          mostrarLog('Producto eliminado correctamente.');
-          await cargarProductos();
-        } catch (e) {
-          mostrarError(`Error al eliminar producto: ${e.message}`);
-        }
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status} al cargar productos: ${text}`);
       }
 
-      // Carga inicial
-      cargarCategorias();
-      cargarProductos();
-    </script>
-  </body>
-</html>
+      const data = await res.json();
+
+      console.log('Datos productos recibidos:', data);
+
+      productos = data.productos || [];
+      renderProductos();
+    } catch (e) {
+      console.error('Error cargarProductos:', e);
+      mostrarError(`Error al cargar productos: ${e.message}`);
+    }
+  }
+
+  function limpiarFormulario() {
+    inputId.value = '';
+    inputNombre.value = '';
+    inputCategoria.value = '';
+    inputPrecio.value = '';
+    inputImagen.value = '';
+    inputDescription.value = '';
+    modoEdicion = false;
+    formTitle.textContent = 'Agregar Producto';
+    cancelBtn.classList.add('hidden');
+    submitBtn.textContent = 'Guardar';
+  }
+
+  function abrirModal() {
+    modal.classList.remove('hidden');
+  }
+
+  function cerrarModal() {
+    modal.classList.add('hidden');
+  }
+
+  function comenzarEdicion(id) {
+    const p = productos.find((prod) => prod.id == id);
+    if (!p) {
+      mostrarError('Producto no encontrado');
+      return;
+    }
+    inputId.value = p.id;
+    inputNombre.value = p.nombre;
+    inputCategoria.value = p.categoria_id || '';
+    inputPrecio.value = p.precio;
+    inputImagen.value = p.imagen || '';
+    inputDescription.value = p.description || '';
+    modoEdicion = true;
+    formTitle.textContent = `Editar Producto (ID: ${p.id})`;
+    cancelBtn.classList.remove('hidden');
+    submitBtn.textContent = 'Actualizar';
+    abrirModal();
+  }
+
+  btnOpenCreateModal.addEventListener('click', () => {
+    limpiarFormulario();
+    abrirModal();
+  });
+
+  btnCloseModal.addEventListener('click', cerrarModal);
+
+  cancelBtn.addEventListener('click', () => {
+    limpiarFormulario();
+    cerrarModal();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!form.checkValidity()) {
+      mostrarError('Por favor completa todos los campos obligatorios correctamente.');
+      form.reportValidity();
+      return;
+    }
+
+    const producto = {
+      nombre: inputNombre.value.trim(),
+      categoria_id: inputCategoria.value,
+      precio: Number(inputPrecio.value),
+      imagen: inputImagen.value.trim(),
+      description: inputDescription.value.trim(),
+    };
+
+    const token = getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      let res;
+      if (modoEdicion) {
+        const id = inputId.value;
+        res = await fetch(`${API_URL}/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ id, ...producto }),
+        });
+      } else {
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(producto),
+        });
+      }
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Error en la API');
+      }
+
+      mostrarLog('Producto guardado correctamente.');
+      limpiarFormulario();
+      cerrarModal();
+      await cargarProductos();
+    } catch (e) {
+      console.error('Error guardar producto:', e);
+      mostrarError(`Error al guardar producto: ${e.message}`);
+    }
+  });
+
+  async function eliminarProducto(id) {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status} al eliminar producto: ${text}`);
+      }
+      mostrarLog('Producto eliminado correctamente.');
+      await cargarProductos();
+    } catch (e) {
+      console.error('Error eliminar producto:', e);
+      mostrarError(`Error al eliminar producto: ${e.message}`);
+    }
+  }
+
+  // Carga inicial
+  cargarCategorias();
+  cargarProductos();
+</script>

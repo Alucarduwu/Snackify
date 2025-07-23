@@ -8,40 +8,97 @@ export const prerender = false;
   <meta charset="UTF-8" />
   <title>Vista Empleado - Gestión de Órdenes</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4f46e5;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    #status {
+      text-align: center;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 15px;
+    }
     table {
       border-collapse: collapse;
       width: 100%;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
     }
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
     }
     th {
-      background-color: #222;
+      background-color: #4f46e5;
       color: white;
+      font-weight: 600;
+    }
+    tbody tr:hover {
+      background-color: #eef2ff;
     }
     td select {
       width: 100%;
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      list-style-type: disc;
+      max-width: 300px;
+      word-wrap: break-word;
+    }
+    #exportBtn {
+      margin: 10px auto;
+      display: block;
+      background-color: #4f46e5;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #exportBtn:hover {
+      background-color: #4338ca;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <h1>Vista Empleado - Gestión de Órdenes</h1>
+  <button id="exportBtn" onclick="exportarPDF()">Exportar a PDF</button>
   <p id="status">Cargando órdenes...</p>
-  <table id="ordenesTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Usuario</th>
-        <th>Email</th>
-        <th>Fecha</th>
-        <th>Estado</th>
-        <th>Productos</th>
-        <th>Cambiar Estado</th>
-      </tr>
-    </thead>
-    <tbody id="ordenesBody"></tbody>
-  </table>
+  <div id="pdfContainer">
+    <table id="ordenesTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Productos</th>
+          <th>Cambiar Estado</th>
+        </tr>
+      </thead>
+      <tbody id="ordenesBody"></tbody>
+    </table>
+  </div>
 
   <script>
     async function fetchOrdenes() {
@@ -65,58 +122,60 @@ export const prerender = false;
           return;
         }
 
-        const { user } = await res.json();
-        const ordenes = user.ordenes ?? [];
+        const data = await res.json();
+        const ordenes = data.user?.ordenes ?? [];
 
         if (ordenes.length === 0) {
           status.textContent = 'No hay órdenes.';
           return;
         }
 
-        // Limpiar tabla
         tbody.innerHTML = '';
 
         ordenes.forEach(orden => {
           const tr = document.createElement('tr');
 
-          // ID
           const tdId = document.createElement('td');
-          tdId.textContent = orden.id;
+          tdId.textContent = orden.id ?? '—';
           tr.appendChild(tdId);
 
-          // Usuario
           const tdUser = document.createElement('td');
-          tdUser.textContent = orden.username || '—';
+          tdUser.textContent = orden.usuario?.username ?? orden.username ?? '—';
           tr.appendChild(tdUser);
 
-          // Email
           const tdEmail = document.createElement('td');
-          tdEmail.textContent = orden.email || '—';
+          tdEmail.textContent = orden.usuario?.email ?? orden.email ?? '—';
           tr.appendChild(tdEmail);
 
-          // Fecha
           const tdFecha = document.createElement('td');
-          const fecha = new Date(orden.fecha);
-          tdFecha.textContent = fecha.toLocaleString();
+          const fecha = orden.fecha ? new Date(orden.fecha) : null;
+          tdFecha.textContent = fecha ? fecha.toLocaleString() : '—';
           tr.appendChild(tdFecha);
 
-          // Estado actual
           const tdEstado = document.createElement('td');
-          tdEstado.textContent = orden.estado;
+          tdEstado.textContent = orden.estado ?? '—';
           tr.appendChild(tdEstado);
 
-          // Productos
           const tdProductos = document.createElement('td');
           const ul = document.createElement('ul');
-          (orden.productos || []).forEach(prod => {
+          const productos = orden.productos ?? orden.ordenes_productos ?? [];
+          if (Array.isArray(productos) && productos.length > 0) {
+            productos.forEach(prod => {
+              const nombre = prod.producto ?? 'Producto';
+              const precio = prod.precio ?? '0';
+              const cantidad = prod.cantidad ?? '0';
+              const li = document.createElement('li');
+              li.textContent = `${nombre} - $${precio} x ${cantidad}`;
+              ul.appendChild(li);
+            });
+          } else {
             const li = document.createElement('li');
-            li.textContent = `${prod.nombre} - $${prod.precio} x ${prod.cantidad}`;
+            li.textContent = 'Sin productos';
             ul.appendChild(li);
-          });
+          }
           tdProductos.appendChild(ul);
           tr.appendChild(tdProductos);
 
-          // Selector para cambiar estado
           const tdCambiar = document.createElement('td');
           const select = document.createElement('select');
           ['pendiente', 'enviado', 'entregado', 'cancelado'].forEach(estado => {
@@ -129,7 +188,6 @@ export const prerender = false;
           select.addEventListener('change', async (e) => {
             const nuevoEstado = e.target.value;
             try {
-              // Aquí está el cambio: ruta dinámica con /api/orders/{id}/estado
               const resPatch = await fetch(`/api/orders?id=${orden.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -140,7 +198,7 @@ export const prerender = false;
               });
               if (!resPatch.ok) {
                 alert('Error al cambiar estado');
-                e.target.value = orden.estado; // Revertir selección
+                e.target.value = orden.estado;
               } else {
                 orden.estado = nuevoEstado;
                 tdEstado.textContent = nuevoEstado;
@@ -161,8 +219,31 @@ export const prerender = false;
 
       } catch (error) {
         status.textContent = 'Error: ' + error.message;
+        console.error(error);
       }
     }
+
+    // Definimos exportarPDF en el contexto global para que el onclick lo encuentre sin problemas
+    window.exportarPDF = function () {
+      const button = document.getElementById('exportBtn');
+      const element = document.getElementById('pdfContainer');
+
+      // Ocultar el botón para que no aparezca en el PDF
+      button.style.display = 'none';
+
+      const opt = {
+        margin:       0.5,
+        filename:     'ordenes_empleado.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        // Mostrar el botón nuevamente
+        button.style.display = 'block';
+      });
+    };
 
     document.addEventListener('DOMContentLoaded', fetchOrdenes);
   </script>

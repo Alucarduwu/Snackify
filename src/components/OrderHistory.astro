@@ -2,13 +2,32 @@
 export const prerender = false;
 ---
 
-<section id="order-section" class="size-full flex flex-col sm:flex-row justify-evenly items-center gap-2.5 text-white">
-  <p id="loading-msg">Cargando órdenes...</p>
+<section id="order-section" class="p-4 bg-gray-50 text-gray-900">
+  <p id="loading-msg" class="text-center font-medium text-gray-600">Cargando órdenes...</p>
+  <div id="table-container" class="overflow-auto mt-4" style="display:none;">
+    <table class="min-w-full border-collapse border border-gray-300">
+      <thead class="bg-indigo-600 text-white">
+        <tr>
+          <th class="border border-gray-300 px-4 py-2 text-left">ID Orden</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Fecha</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Estado</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Usuario</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Dirección</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Método Pago</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Productos</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Precios Unitarios</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Total</th>
+        </tr>
+      </thead>
+      <tbody id="orders-body" class="bg-white"></tbody>
+    </table>
+  </div>
 </section>
 
 <script type="module" client:load>
-  const section = document.getElementById('order-section');
   const loadingMsg = document.getElementById('loading-msg');
+  const tableContainer = document.getElementById('table-container');
+  const ordersBody = document.getElementById('orders-body');
 
   async function fetchOrders() {
     const token = localStorage.getItem('token');
@@ -32,103 +51,91 @@ export const prerender = false;
       const orders = data.user?.ordenes ?? [];
 
       if (orders.length === 0) {
-        loadingMsg.textContent = 'No hay pedidos.';
+        loadingMsg.textContent = 'No tienes órdenes.';
         return;
       }
 
-      loadingMsg.remove();
+      loadingMsg.style.display = 'none';
+      tableContainer.style.display = 'block';
 
-      const categories = [
-        { title: 'Pedidos Enviados', filter: 'enviado' },
-        { title: 'Pedidos Pendientes', filter: 'pendiente' },
-        { title: 'Pedidos Entregados', filter: 'entregado' },
-        { title: 'Pedidos Cancelados', filter: 'cancelado' },
-      ];
+      ordersBody.innerHTML = '';
 
-      categories.forEach(({ title, filter }) => {
-        const filtered = orders.filter(o => o.estado === filter);
-        const container = document.createElement('div');
-        container.className = 'w-[90%] sm:w-[20%] h-[300px] sm:h-[500px] bg-[#6f6f6f87] rounded-md flex flex-col items-center';
+      orders.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-100';
 
-        const h2 = document.createElement('h2');
-        h2.className = 'text-2xl font-bold';
-        h2.textContent = title;
-        container.appendChild(h2);
+        // Productos y precios concatenados
+        let productosText = '';
+        let preciosText = '';
+        let total = 0;
 
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'size-full p-2 overflow-y-auto no-scrollbar';
-
-        if (filtered.length === 0) {
-          const p = document.createElement('p');
-          p.className = 'text-center mt-2';
-          p.textContent = 'No hay pedidos';
-          contentDiv.appendChild(p);
-        } else {
-          filtered.forEach(pedido => {
-            const summary = document.createElement('summary');
-            summary.className = 'w-full h-auto p-2 mb-2 rounded-br-md bg-[#1e1e1e87]';
-
-            const idH2 = document.createElement('h2');
-            idH2.className = 'text-lg font-bold';
-            
-            summary.appendChild(idH2);
-
-            const details = document.createElement('details');
-
-            const fechaP = document.createElement('p');
-            fechaP.textContent = `Fecha: ${new Date(pedido.fecha).toLocaleDateString()}`;
-            details.appendChild(fechaP);
-
-            const precioP = document.createElement('p');
-            
-            details.appendChild(precioP);
-
-            const estadoP = document.createElement('p');
-            estadoP.textContent = `Estado: ${pedido.estado ?? 'pendiente'}`;
-            details.appendChild(estadoP);
-
-            const productosH2 = document.createElement('h2');
-            productosH2.textContent = 'Productos:';
-            details.appendChild(productosH2);
-
-            const ul = document.createElement('ul');
-            ul.className = 'flex flex-col gap-1 items-center';
-
-            (pedido.productos ?? []).forEach(producto => {
-              const li = document.createElement('li');
-              li.className = 'w-[90%] flex bg-[#6f6f6f90] p-2 rounded-md items-center gap-2';
-
-              const img = document.createElement('img');
-              img.src = producto.imagen;
-              img.alt = producto.nombre;
-              img.className = 'w-[50px] h-[50px] object-contain';
-              li.appendChild(img);
-
-              const divText = document.createElement('div');
-              divText.className = 'flex flex-col text-sm';
-
-              const nombreSpan = document.createElement('span');
-              nombreSpan.textContent = `${producto.nombre} - ${producto.categoria}`;
-              divText.appendChild(nombreSpan);
-
-              const precioSpan = document.createElement('span');
-              precioSpan.textContent = `$${producto.precio}`;
-              divText.appendChild(precioSpan);
-
-              li.appendChild(divText);
-              ul.appendChild(li);
-            });
-
-            details.appendChild(ul);
-            summary.appendChild(details);
-            contentDiv.appendChild(summary);
+        if (Array.isArray(order.productos) && order.productos.length > 0) {
+          order.productos.forEach(p => {
+            productosText += `${p.producto} x ${p.cantidad}\n`;
+            preciosText += `$${p.precio}\n`;
+            total += Number(p.precio) * Number(p.cantidad);
           });
+        } else {
+          productosText = '-';
+          preciosText = '-';
         }
 
-        container.appendChild(contentDiv);
-        section.appendChild(container);
-      });
+        // ID Orden
+        const tdId = document.createElement('td');
+        tdId.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap';
+        tdId.textContent = order.id ?? '-';
+        tr.appendChild(tdId);
 
+        // Fecha
+        const tdFecha = document.createElement('td');
+        tdFecha.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap';
+        tdFecha.textContent = order.fecha ? new Date(order.fecha).toLocaleString() : '-';
+        tr.appendChild(tdFecha);
+
+        // Estado
+        const tdEstado = document.createElement('td');
+        tdEstado.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap capitalize';
+        tdEstado.textContent = order.estado ?? '-';
+        tr.appendChild(tdEstado);
+
+        // Usuario (nombre)
+        const tdUser = document.createElement('td');
+        tdUser.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap';
+        tdUser.textContent = order.username ?? '-';
+        tr.appendChild(tdUser);
+
+        // Dirección
+        const tdDireccion = document.createElement('td');
+        tdDireccion.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap';
+        tdDireccion.textContent = order.direccion ?? '-';
+        tr.appendChild(tdDireccion);
+
+        // Método de pago
+        const tdMetodoPago = document.createElement('td');
+        tdMetodoPago.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap';
+        tdMetodoPago.textContent = order.metodo_pago ?? '-';
+        tr.appendChild(tdMetodoPago);
+
+        // Productos
+        const tdProductos = document.createElement('td');
+        tdProductos.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap font-mono text-sm';
+        tdProductos.textContent = productosText.trim();
+        tr.appendChild(tdProductos);
+
+        // Precios unitarios
+        const tdPrecios = document.createElement('td');
+        tdPrecios.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap font-mono text-sm';
+        tdPrecios.textContent = preciosText.trim();
+        tr.appendChild(tdPrecios);
+
+        // Total
+        const tdTotal = document.createElement('td');
+        tdTotal.className = 'border border-gray-300 px-4 py-2 align-top whitespace-pre-wrap font-semibold';
+        tdTotal.textContent = `$${total.toFixed(2)}`;
+        tr.appendChild(tdTotal);
+
+        ordersBody.appendChild(tr);
+      });
     } catch (error) {
       loadingMsg.textContent = `Error en la llamada a la API: ${error.message}`;
     }
