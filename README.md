@@ -1,48 +1,136 @@
-# Astro Starter Kit: Basics
+<h1 align="center">🍔 Snackify</h1>
 
-```sh
-npm create astro@latest -- --template basics
+<p align="center">
+Snack Ordering & Management App  
+<br/>
+Aplicación de pedidos y gestión de snacks
+</p>
+
+<p align="center">
+<img src="https://img.shields.io/badge/Type-Web%20App-blue?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Focus-Food%20Ordering-orange?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge"/>
+</p>
+
+---
+
+## 🚀 Overview | Descripción
+
+**EN 🇺🇸**  
+**Snackify** is a web application designed to manage and display snack products, allowing users to browse, organize, and interact with a food catalog.
+
+It focuses on building a structured system for product management and user interaction.
+
+**ES 🇲🇽**  
+**Snackify** es una aplicación web diseñada para gestionar y mostrar productos tipo snacks, permitiendo a los usuarios explorar y organizar un catálogo de alimentos.
+
+Se enfoca en crear un sistema estructurado para la gestión de productos e interacción del usuario.
+
+---
+
+## ✨ Features | Funcionalidades
+
+**EN 🇺🇸**
+- 🍔 Snack/product catalog  
+- 📋 Menu organization  
+- 🗄️ Database-driven system  
+- 🧩 Structured UI components  
+- ⚡ Simple and intuitive interaction  
+
+**ES 🇲🇽**
+- 🍔 Catálogo de snacks/productos  
+- 📋 Organización de menú  
+- 🗄️ Sistema basado en base de datos  
+- 🧩 Componentes estructurados  
+- ⚡ Interfaz simple e intuitiva  
+
+---
+
+## 🧰 Tech Stack | Tecnologías
+
+- Frontend framework (React / Angular / Vanilla JS)  
+- JavaScript / TypeScript  
+- HTML / CSS  
+- Backend (if applicable)  
+- Database (if applicable)  
+
+---
+
+## 🧠 Concept | Concepto
+
+**EN 🇺🇸**  
+Snackify is built as a **product-oriented system**, simulating real-world food ordering or menu platforms.
+
+It demonstrates how to structure UI, manage data, and organize product flows.
+
+**ES 🇲🇽**  
+Snackify está diseñado como un **sistema orientado a productos**, simulando plataformas reales de menú o pedidos de comida.
+
+Demuestra cómo estructurar interfaces, manejar datos y organizar flujos de productos.
+
+---
+
+## 📂 Project Structure | Estructura
+
+```
+/src
+  /components
+  /pages
+  /services
+  /data
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+---
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🚀 Getting Started | Instalación
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+git clone https://github.com/Alucarduwu/Snackify.git
+cd Snackify
+npm install
+npm run dev
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+---
 
-## 🧞 Commands
+## 💡 What I Learned | Aprendizajes
 
-All commands are run from the root of the project, from a terminal:
+**EN 🇺🇸**
+- Structuring frontend applications  
+- Managing UI components and state  
+- Designing product-based interfaces  
+- Organizing data for user interaction  
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+**ES 🇲🇽**
+- Estructuración de aplicaciones frontend  
+- Manejo de componentes y estado  
+- Diseño de interfaces orientadas a productos  
+- Organización de datos  
 
-## 👀 Want to learn more?
+---
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## 📈 Future Improvements | Mejoras Futuras
+
+- 🛒 Shopping cart system  
+- 🔐 User authentication  
+- 📊 Order tracking  
+- 📱 Mobile version  
+- 🎨 UI/UX improvements  
+
+---
+
+## 👩‍💻 Author
+
+**Anahí Lozano**
+
+- 💼 LinkedIn: https://www.linkedin.com/in/anahi-lozano-de-lira-a4213a187/  
+- 🌐 Portfolio: https://portafolioanahi.vercel.app/  
+- 📧 Email: anahydlira@gmail.com  
+
+---
+
+<p align="center">
+Built with 💜 to create better user experiences  
+<br/>
+Desarrollado con 💜 para crear mejores experiencias de usuario
+</p>
