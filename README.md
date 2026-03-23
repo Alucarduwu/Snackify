@@ -53,8 +53,9 @@ Simula flujos reales como inventario, procesamiento de pedidos y control de acce
 
 ## 📊 Languages (GitHub Insights - Real)
 
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Alucarduwu&repo=Snackify&layout=compact)
----
+<p align="center">
+  <img src="./src/assets/image.png" alt="Languages breakdown" width="500"/>
+</p>
 
 ## 🧰 Tech Stack
 
