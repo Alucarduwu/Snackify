@@ -1,148 +1,217 @@
 <h1 align="center">🍰 Snackify</h1>
 
 <p align="center">
-Bakery ERP & CRM System  
-<br/>
-Sistema ERP y CRM para gestión de dulces y repostería
+  <b>Bakery ERP & CRM System</b><br/>
+  <i>Sistema ERP y CRM para gestión de repostería</i>
 </p>
 
 <p align="center">
-<img src="https://img.shields.io/badge/System-ERP%20%2B%20CRM-purple?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Frontend-Astro-orange?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Database-MySQL-blue?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/System-ERP%20%2B%20CRM-purple?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Frontend-Astro-orange?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Database-MySQL-blue?style=for-the-badge"/>
 </p>
 
 ---
 
-> 📌 Full-stack ERP/CRM system for bakery business management
-
----
-
-## 🚀 Overview | Descripción
+## 🧩 Description | Descripción
 
 **EN 🇺🇸**  
-Snackify is a web-based ERP & CRM system designed to manage a bakery business, including products, orders, users, and roles.
-
+Snackify is a web-based ERP & CRM system designed to manage a bakery business, including products, orders, users, and roles.  
 It simulates real-world workflows such as inventory management, order processing, and role-based access control.
 
 **ES 🇲🇽**  
-Snackify es un sistema ERP y CRM web diseñado para gestionar un negocio de repostería, incluyendo productos, pedidos, usuarios y roles.
-
+Snackify es un sistema web ERP y CRM diseñado para gestionar un negocio de repostería, incluyendo productos, pedidos, usuarios y roles.  
 Simula flujos reales como inventario, procesamiento de pedidos y control de accesos.
+
+---
+
+## 🎯 Problem | Problema
+
+**EN 🇺🇸**
+Small businesses often lack integrated systems to manage:
+- inventory  
+- orders  
+- customers  
+- internal roles  
+
+This leads to inefficiency and manual processes.
+
+**ES 🇲🇽**
+Los pequeños negocios no suelen contar con sistemas integrados para gestionar:
+- inventario  
+- pedidos  
+- clientes  
+- roles internos  
+
+Esto genera ineficiencia y procesos manuales.
+
+---
+
+## 💡 Solution | Solución
+
+**EN 🇺🇸**  
+Snackify integrates ERP and CRM functionalities into a single system to manage bakery operations efficiently.
+
+**ES 🇲🇽**  
+Snackify integra funcionalidades ERP y CRM en un solo sistema para gestionar eficientemente un negocio de repostería.
+
+---
+
+## ⚙️ Stack
+
+- Astro  
+- JavaScript / TypeScript  
+- Node.js  
+- MySQL  
+- MVC  
+- RBAC (Role-Based Access Control)  
 
 ---
 
 ## ✨ Features | Funcionalidades
 
 **EN 🇺🇸**
-- 🍰 Product management (cakes, desserts, snacks)  
-- 🛒 Order management system  
-- 👥 Role-based access (admin, employee, user)  
-- 📊 Business workflow simulation  
-- 🗄️ MySQL database integration  
+- Product management  
+- Order management  
+- Role-based access control  
+- Business workflow simulation  
+- Database integration  
 
 **ES 🇲🇽**
-- 🍰 Gestión de productos (pasteles, dulces, snacks)  
-- 🛒 Sistema de pedidos  
-- 👥 Control de roles (admin, empleado, usuario)  
-- 📊 Simulación de flujos de negocio  
-- 🗄️ Integración con MySQL  
+- Gestión de productos  
+- Sistema de pedidos  
+- Control de accesos por roles  
+- Simulación de flujos de negocio  
+- Integración con base de datos  
 
 ---
 
-
-## 📊 Languages (GitHub Insights - Real)
-
-<p align="center">
-  <img src="./src/assets/image.png" alt="Languages breakdown" width="500"/>
-</p>
-
-## 🧰 Tech Stack
-
-| Category        | Stack |
-|----------------|------|
-| Frontend       | Astro, JavaScript / TypeScript, HTML, CSS |
-| Backend Logic  | Node.js |
-| Database       | MySQL |
-| Architecture   | MVC + Role-Based Access Control (RBAC) |
-| System Type    | ERP + CRM (Bakery Management System) |
-| Tools          | Git, VS Code |
-
----
-
-## 🧠 System Design | Diseño
+## 🧠 Architecture | Arquitectura
 
 **EN 🇺🇸**  
-Snackify combines **ERP and CRM concepts** into a single system:
-
-- ERP → product, inventory, and order management  
-- CRM → user interaction and role handling  
+Snackify combines ERP and CRM concepts:
+- ERP → inventory, products, orders  
+- CRM → users and roles  
 
 **ES 🇲🇽**  
-Snackify combina **ERP y CRM en un solo sistema**:
-
-- ERP → productos, inventario y pedidos  
-- CRM → gestión de usuarios y roles  
+Snackify combina conceptos ERP y CRM:
+- ERP → inventario, productos, pedidos  
+- CRM → usuarios y roles  
 
 ---
 
 ## 👤 Roles
 
-- **Admin** → full system control  
-- **Employee** → manage orders and products  
-- **User** → browse and interact  
+- Admin → control total  
+- Employee → gestión de pedidos y productos  
+- User → interacción básica  
 
 ---
 
-## 📂 Project Structure
+## 📊 Status | Estado
 
-```
-/src
-  /pages
-  /components
-  /layouts
-  /services
-/database
-```
+- Functional prototype / Prototipo funcional  
+- In development / En desarrollo  
 
 ---
 
-## 🚀 Getting Started
+# ⚙️ SYSTEM DATA (DO NOT EDIT FORMAT)
 
-```bash
-git clone https://github.com/Alucarduwu/Snackify.git
-cd Snackify
-npm install
-npm run dev
-```
+<!-- Este bloque es para parsing automático -->
+
+## PROJECT_DATA
+
+name:
+  en: Snackify
+  es: Snackify
+
+description:
+  en: Bakery ERP and CRM system for managing products, orders, and users
+  es: Sistema ERP y CRM para gestión de productos, pedidos y usuarios
+
+problem:
+  en: Lack of integrated systems for small business management
+  es: Falta de sistemas integrados para gestión de pequeños negocios
+
+solution:
+  en: Unified ERP and CRM system for bakery operations
+  es: Sistema unificado ERP y CRM para operaciones de repostería
+
+stack:
+  - Astro
+  - TypeScript
+  - JavaScript
+  - Node.js
+  - MySQL
+
+features:
+  en:
+    - Product management
+    - Order system
+    - Role-based access
+    - Business workflow simulation
+  es:
+    - Gestión de productos
+    - Sistema de pedidos
+    - Control de roles
+    - Simulación de negocio
+
+architecture: MVC + RBAC
+
+technical_challenges:
+  en:
+    - Role-based system design
+    - Backend and frontend integration
+    - Database modeling
+  es:
+    - Diseño de control de roles
+    - Integración full stack
+    - Modelado de base de datos
+
+improvements:
+  en:
+    - Modular structure
+    - Cleaner role handling
+    - Improved data flow
+  es:
+    - Estructura modular
+    - Mejora en control de roles
+    - Flujo de datos optimizado
+
+learning:
+  en:
+    - ERP/CRM systems design
+    - Role-based access control
+    - Full stack architecture
+  es:
+    - Diseño de sistemas ERP/CRM
+    - Control de accesos
+    - Arquitectura full stack
+
+status:
+  en: Prototype in development
+  es: Prototipo en desarrollo
+
+future:
+  en:
+    - Analytics dashboard
+    - Mobile version
+    - Cloud deployment
+  es:
+    - Dashboard de analíticas
+    - App móvil
+    - Deploy en la nube
+
+repo: https://github.com/Alucarduwu/Snackify
 
 ---
 
-## 💡 What I Learned | Aprendizajes
+## 🚀 Installation
 
-**EN 🇺🇸**
-- Building ERP/CRM systems  
-- Role-based authentication  
-- Full-stack integration  
-- Astro-based frontend architecture  
-- Database design with MySQL  
-
-**ES 🇲🇽**
-- Desarrollo de sistemas ERP/CRM  
-- Control de accesos por roles  
-- Integración full stack  
-- Uso de Astro como frontend  
-- Diseño de bases de datos  
-
----
-
-## 📈 Future Improvements | Mejoras Futuras
-
-- 📊 Analytics dashboard  
-- 📱 Mobile app (Flutter)  
-- ☁️ Cloud deployment  
-- 🧾 Billing system  
-- 🔔 Notifications  
+git clone https://github.com/Alucarduwu/Snackify.git  
+cd Snackify  
+npm install  
+npm run dev  
 
 ---
 
@@ -150,14 +219,12 @@ npm run dev
 
 **Anahí Lozano**
 
-- 💼 LinkedIn: https://www.linkedin.com/in/anahi-lozano-de-lira-a4213a187/  
-- 🌐 Portfolio: https://portafolioanahi.vercel.app/  
-- 📧 Email: anahydlira@gmail.com  
+- LinkedIn: https://www.linkedin.com/in/anahi-lozano-de-lira-a4213a187/  
+- Portfolio: https://portafolioanahi.vercel.app/  
+- Email: anahydlira@gmail.com  
 
 ---
 
 <p align="center">
-Built with 💜 to simulate real business systems  
-<br/>
-Desarrollado con 💜 para simular sistemas reales de negocio
+💜 Built to simulate real business systems
 </p>
