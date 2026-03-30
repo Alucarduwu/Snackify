@@ -3,14 +3,15 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node api.js && astro dev",
+    "build": "node api.js && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
     "astro": "^5.7.5",
+    "node-fetch": "^3.3.2",
     "bcrypt": "^6.0.0",
     "cookie": "^1.0.2",
     "dotenv": "^16.6.1",
